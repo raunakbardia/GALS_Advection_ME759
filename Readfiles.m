@@ -25,7 +25,7 @@ n = n/printstep + 1;                    % Number of stored time steps
 
 %% Reading the grid details from files in the master variables
 
-masterphi = double(zeros(ny, nx, n));   
+masterphi = double(zeros(ny, nx, n));
 masterpsix = double(zeros(ny, nx, n));
 masterpsiy = double(zeros(ny, nx, n));
 masterpsixy = double(zeros(ny, nx, n));
@@ -66,15 +66,15 @@ for i = 1:n
         figure1 = figure;
         axes1 = axes('Parent',figure1,'FontSize',24);
     end
-
+    
     quiver(xx(:,2:end),yy(:,2:end),u(:,2:end,1),v(:,2:end,1),'Parent',axes1);
     axis([xlim1 xlim2 ylim1 ylim2]);
     hold on
-
+    
     contour(x, y, masterphi(:, :, 1),[0 0]);
-
-%     surfc(x, y, masterphi(:, :, i));
-
+    
+    %     surfc(x, y, masterphi(:, :, i));
+    
     [c,h] = contour(x, y, masterphi(:, :, i),[0 0]);
     set(h, 'LineWidth', 2.0, 'LineColor', 'k');
     xlabel('X','FontSize',24);
@@ -86,10 +86,10 @@ for i = 1:n
     pause(0.1);
     hold off
     
-%     if(rem(i-1,8)==0)
-%         fname = sprintf([tagMain  tagSize  'T2_%d'],(i-1));
-%         print('-depsc2','-r600',fname);
-%     end
+    %     if(rem(i-1,8)==0)
+    %         fname = sprintf([tagMain  tagSize  'T2_%d'],(i-1));
+    %         print('-depsc2','-r600',fname);
+    %     end
 end
 % error = abs(masterphi(:,:,end)) - abs(masterphi(:,:,1);
 % surf(x,y,error)
