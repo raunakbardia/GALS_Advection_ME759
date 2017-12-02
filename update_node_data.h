@@ -6,42 +6,16 @@
 for(int k = 0; k < 4; k++) 
     {                     
                     int count = 0;  // Additional variable to make sure that the advection point is available for the relevant node point
-                    temp1 = 0;           temp2 = 0;
+    		int temp1 = 0, temp2 = 0;       // These temporary variables are updated when the advection point lies between the x and y limits of the cell
                     tempindex_y = i + (-2 * pow(k,3) + 9 * pow(k,2) - 7 * k)/6;   // Temporary Indexes polynomial
                     tempindex_x = j + (2 * pow(k,3) - 9 * pow(k,2) + 10 * k)/3;
                     
                     if(tracker[tempindex_y][tempindex_x] == 0){ // If the node has already been updated we need not update it again
                         
-                        ux = Velx(x[tempindex_x], y[tempindex_y], (t + 1) * dt, T_period);
-                        vy = Vely(x[tempindex_x], y[tempindex_y], (t + 1) * dt, T_period);
-                        
-                        // Advected Points - 1 Step
-                        xr1 = x[tempindex_x] - ux * dt;
-                        yr1 = y[tempindex_y] - vy * dt;
+			double xadv, yadv;
 
-                        if(strcmp("RK3",backtrace_scheme) == 0){
-                            
-                            ux1 = Velx(xr1, yr1, t * dt, T_period);
-                            vy1 = Vely(xr1, yr1, t * dt, T_period);
-                            
-                            // 2 Step
-                            xr2 = x[tempindex_x] - ((dt)/2.0 * (0.5 * ux + 0.5 * ux1));
-                            yr2 = y[tempindex_y] - ((dt)/2.0 * (0.5 * vy + 0.5 * vy1));
-                            
-                            ux2 = Velx(xr2, yr2,(t * dt + dt/2.0), T_period);
-                            vy2 = Vely(xr2, yr2,(t * dt + dt/2.0), T_period);
-                            
-                            // 3 Step
-                            xadv = x[tempindex_x] - (dt * (c1 * ux + c2 * ux1 + c3 * ux2));
-                            yadv = y[tempindex_y] - (dt * (c1 * vy + c2 * vy1 + c3 * vy2));
-                        }
-
-                        else{
-                            xadv = xr1;
-                            yadv = yr1;
-                        }
-                      
-
+		advection_point(x, y, tempindex_x, tempindex_y, t, dt, T_period, xadv, yadv, backtrace_scheme);
+			
                         if((xadv >= x[j]) && (xadv <= x[j+1]))
                             temp1 = 1;
                         if((yadv >= y[i]) && (yadv <= y[i+1]))

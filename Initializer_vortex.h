@@ -20,6 +20,9 @@ const double rcircle = .15;
 
 using namespace std;
 
+namespace galsfunctions
+{
+
 double Velx(double x, double y, double t, double T_period){
     double temp;
     double signum = cos(pi*t/T_period);
@@ -84,6 +87,6 @@ double derivxyinit(double x, double y){
     k = 4 * (y - yo) * (x - xo) * exp(-(pow((x - xo),2) + pow((y - yo),2)));
     return k;
 }
-
+}
 
 #endif

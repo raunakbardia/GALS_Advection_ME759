@@ -3,6 +3,10 @@
 #ifndef _UPDATE_LEVELSET_DATA_H
 #define _UPDATE_LEVELSET_DATA_H
 
+    //FOR SUPERCONSISTENT METHOD & HEUNS
+    double xr1,yr1,xr2,yr2,gradux1,graduy1,gradvx1,gradvy1,gradux2,graduy2,gradvx2,gradvy2,graduxnode,graduynode,gradvxnode,gradvynode,graduxroot,graduyroot,gradvxroot,gradvyroot;
+    double gradxr1x,gradyr1x,gradxr2x,gradyr2x,gradxr1y,gradyr1y,gradxr2y,gradyr2y,gradxrx,gradxry,gradyrx,gradyry, graduxnew, graduynew, gradvxnew, gradvynew, temp;
+    
         switch(count){
             case 1:{
                 tempphi[tempindex_y][tempindex_x] = hp(phi, psix, psiy, psixy, xadv, yadv, xo, yo, dx, dy);

@@ -16,7 +16,7 @@ BIN = "/usr/local/gcc/6.4.0/bin/gcc"
 .DEFAULT_GOAL := all
 
 .PHONY: debug
-debug : OPT  := -O0 -g -fno-omit-frame-pointer -fsanitize=address
+debug : OPT  := -O0 -g -fno-omit-frame-pointer -fsanitize=addres
 debug : LDFLAGS := -fsanitize=address
 debug : ARCH :=
 debug : $(EXEC)
@@ -25,7 +25,7 @@ all : gals_advection
 
 gals_advection: GALS_Advection.cpp
 	@ echo Compiling $<...
-	$(CXX) GALS_Advection.cpp -o gals_advection $(WFLAGS) $(OPT) $(LDFLAGS) $(CFLAGS) $(CXXSTD)
+	$(CXX) GALS_Advection.cpp -o GALS_Advection $(WFLAGS) $(OPT) $(LDFLAGS) $(CFLAGS) $(CXXSTD) #-pg -fprofile-arcs -ftest-coverage
 
 # TODO: add targets for building executables
 
@@ -33,4 +33,4 @@ gals_advection: GALS_Advection.cpp
 .PHONY: clean
 clean:
 	rm -f *.o *.exe *.dat *.out
-	rm gals_advection
+	rm GALS_Advection

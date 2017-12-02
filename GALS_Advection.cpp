@@ -20,7 +20,6 @@
 //
 
 // THIS IMPLEMENTATION WON'T WORK IF THE GRID IS SMALLER THAN (2 X 2)
-
 #include <iostream>
 #include <iomanip>
 #include <math.h>
@@ -29,24 +28,21 @@
 #include <sys/time.h>
 #include <time.h>
 #include <string.h>
-//#include "Bilinear.h"
+#include <vector>
+#include "VariableDefinitions.h"
 #include "Hermite.h"
 #include "Initializer_vortex.h"    //UPDATE THIS HEADER FILE WITH THE RELEVANT FUNCTIONS
+#include "TimeSteppingMethods.h"
+#include "Allocation.h"
+//#include "Bilinear.h"
+
 
 using namespace std;
+using namespace galsfunctions;
 
 // y direction is the first index of array, x direction is the second index of array
 
 int main(){
-
-    clock_t tStart = clock();
-
-    struct  timeval start1;       struct  timeval end1;          unsigned  long diff1;
-    struct  timeval start2;       struct  timeval end2;          unsigned  long diff2;
-    struct  timeval start3;       struct  timeval end3;          unsigned  long diff3;
-    struct  timeval start4;       struct  timeval end4;          unsigned  long diff4;
-    struct  timeval start5;       struct  timeval end5;          unsigned  long diff5;
-    struct  timeval start999;     struct  timeval end999;        unsigned  long diff999;
 
     /* UPDATE ALL THE FOLLOWING VALUES */
     double xlim1 = 0.0;                       //Lower limit on x-axis
@@ -58,7 +54,7 @@ int main(){
     int ny = 192 + 1;                        //Number of nodes INCLUDING THE EXTREME VALUES
 
     double dt = (1/100.0);                     //Length of time step
-    double Tfinal = 0.01;                    //Total time period for the simulation
+    double Tfinal = 0.1;                    //Total time period for the simulation
     int option = 2;                         //Option - if you need animation initialize at 1 else initialize at 2
     int printstep = 8;                      //How frequently do you want to store the images (every nth time step)
     char psischeme[] = "SuperConsistent";   //'SuperConsistent' or 'Heuns'
@@ -68,14 +64,23 @@ int main(){
     //MAKE SURE THAT YOU HAVE ENOUGH MEMORY SPACE IF YOU ARE STORING A LOT OF TIME STEP VALUES BECAUSE IT STORES ACROSS GRID POINTS FOR EACH PRINTSTEP
 
     /* USER UPDATE OVER */
+    #include "parameter_setting.h"
+    
+    // Node Locations
+    double dx = (xlim2 - xlim1)/(nx - 1);
+    double dy = (ylim2 - ylim1)/(ny - 1);
+    vectorarray x,y;
+    gridnodes(x,y,xlim1,ylim1,dx,dy,nx,ny);
 
-    int n = Tfinal/dt; //Number of time steps
-    // If only the initial and final profiles are needed
-    if(option != 1)
-        printstep = n;
+    // Initializing at t = 0
+    gridarray mphi, mpsix, mpsiy, mpsixy; // level set matrix
+    allocate_levelset_matrices(mphi,mpsix,mpsiy,mpsixy,x,y,nx,ny); //Initializing level set matrices
+   
+    gridarray tempphi(mphi), temppsix(mpsix), temppsiy(mpsiy), temppsixy(mpsixy);	// Making level set matrix copies for time loop use
 
-
-    /*
+    fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,0.0,T_period);
+   
+/*
      Let the following represent one cell
 
      2      3
@@ -91,43 +96,24 @@ int main(){
 
      */
 
-
-    // --------------- define all required parameters ---------------------------------------------------------
-    #include "parameter_setting.h"
-    //---------------------------------------------------------------------------------------------------------
-
-
-    // --------------- 1ST Part --------------------------------------------------------------------------------
-    // Initializing at t = 0
-        gettimeofday(&start1,NULL);
-
-        #include "initialization.h"
-
-        gettimeofday(&end1,NULL);
-        diff1 = 1000000 * (end1.tv_sec-start1.tv_sec)+ end1.tv_usec-start1.tv_usec;
-    //---------------------------------------------------------------------------------------------------------
-
+    int n = Tfinal/dt; //Number of time steps
 
     // -------------- 2ND Part --------------------------------------------------------------------------------
     // Giving an extra empty line for distinction between next time step
-    myfile << '\n';           myfile1 << '\n';             myfile2 << '\n';            myfile3 << '\n';             uu << '\n';         vv << '\n';
 
+    ofstream details;
+    details.open("details.txt", ios::out | ios::app);
     details<< nx << "," << ny << "," << std::fixed << std::setprecision(10) << dx << "," << dy << "," << xlim1 << "," << xlim2 << "," << ylim1 << "," << ylim2 << "," << n << "," << dt << "," << printstep;
     details.close();
 
-    gettimeofday(&start2,NULL);
-
     // TIME STEPPING LOOP
-    for(t = 0; t < n; t++){
+    // If only the initial and final profiles are needed
+    if(option != 1)
+        printstep = n;
+    for(int t = 0; t < n; t++){
 
-        // Initializing tracker to zero at every time step
-        for(int p = 0; p < ny; p ++){
-            for(int q = 0; q<nx; q++){
-                tracker[p][q] = 0;
-            }
-        }
-
-        gettimeofday(&start999,NULL);
+	std::vector<std::vector<double>> tracker;
+	tracker.resize(ny,std::vector<double>(nx,0.0));
 
         for(int i = 0; i < ny-1; i++){  // loop for y - rows in the array
             for(int j = 0; j < nx-1; j++){  // loop for x - columns in the array
@@ -149,25 +135,18 @@ int main(){
             }   // end of x-columns marching
         }   // end of y-rows marching
 
-        gettimeofday(&end999,NULL);
-        diff999 = 1000000 * (end999.tv_sec - start999.tv_sec) + end999.tv_usec - start999.tv_usec;
     //---------------------------------------------------------------------------------------------------------
 
 
     //---------------------------------------------------------------------------------------------------------
     // Update the mixed derivatives now for the remaining grid points
-        gettimeofday(&start3,NULL);
-
         #include "update_mixed_derivatives.h"
 
-        gettimeofday(&end3,NULL);
-        diff3 = 1000000 * (end3.tv_sec - start3.tv_sec) + end3.tv_usec - start3.tv_usec;
     //---------------------------------------------------------------------------------------------------------
 
 
     //---------------------------------------------------------------------------------------------------------
     // Feeding values back to the master matrix
-        gettimeofday(&start4,NULL);
 
         for(int k = 0; k < ny; k++){
             for(int l = 0; l < nx; l++){
@@ -177,40 +156,20 @@ int main(){
                 mpsixy[k][l] = temppsixy[k][l];
             }
         }
-
-        gettimeofday(&end4,NULL);
-        diff4 = 1000000 * (end4.tv_sec - start4.tv_sec) + end4.tv_usec-start4.tv_usec;
     //---------------------------------------------------------------------------------------------------------
 
 
     //---------------------------------------------------------------------------------------------------------
     // Feeding phi, psix, psiy and psixy values in their respective files
-        gettimeofday(&start5,NULL);
-
-            #include "feeding_output.h"
+        if((t+1) % printstep == 0)
+    		fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,(t+1)*dt,T_period);
 
             cout<< t+1;
             cout<< " Time Step Completed" <<'\n';
-
-        gettimeofday(&end5,NULL);
-        diff5 = 1000000 * (end5.tv_sec - start5.tv_sec) + end5.tv_usec - start5.tv_usec;
 
     //---------------------------------------------------------------------------------------------------------
 
     }  // end of time marching loop
 
-    gettimeofday(&end2,NULL);
-    diff2 = 1000000 * (end2.tv_sec - start2.tv_sec) + end2.tv_usec - start2.tv_usec;
-
-    myfile.close();       myfile1.close();         myfile2.close();          myfile3.close();         uu.close();        vv.close();
-
-    cout<<diff1*0.001<<endl;
-    cout<<diff2*0.001<<endl;
-    cout<<diff3*0.001<<endl;
-    cout<<diff4*0.001<<endl;
-    cout<<diff5*0.001<<endl;
-    cout<<diff999*0.001<<endl;
-//    double ttt = (clock() - tStart)/CLOCKS_PER_SEC;
-//    cout<<'\n'<<"Time Taken: "<<ttt<<'\n'<< '\n';
     return 0;
 }
