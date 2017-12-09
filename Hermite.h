@@ -17,7 +17,7 @@ using namespace std;
 
 double basepolynomial(double x, double y, int alphax, int alphay, int vx, int vy, double dx, double dy, double xo, double yo){
     
-    double bpx, bpy;
+    double bpx = 0.0, bpy = 0.0;
     double etax = (x - xo)/dx;
     double etay = (y - yo)/dy;
     
@@ -57,7 +57,7 @@ double basepolynomial(double x, double y, int alphax, int alphay, int vx, int vy
 
 double gradbpx(double x, double y, int alphax, int alphay, int vx, int vy, double dx, double dy, double xo, double yo){
     
-    double bpx, bpy;
+    double bpx = 0.0, bpy = 0.0;
     double etax = (x - xo)/dx;
     double etay = (y - yo)/dy;
     
@@ -98,7 +98,7 @@ double gradbpx(double x, double y, int alphax, int alphay, int vx, int vy, doubl
 
 double gradbpy(double x, double y, int alphax, int alphay, int vx, int vy, double dx, double dy, double xo, double yo){
     
-    double bpx, bpy;
+    double bpx = 0.0, bpy = 0.0;
     double etax = (x - xo)/dx;
     double etay = (y - yo)/dy;
     

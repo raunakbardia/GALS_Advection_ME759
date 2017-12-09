@@ -29,11 +29,13 @@
 #include <time.h>
 #include <string.h>
 #include <vector>
+#include <tuple>
 #include "VariableDefinitions.h"
 #include "Hermite.h"
 #include "Initializer_vortex.h"    //UPDATE THIS HEADER FILE WITH THE RELEVANT FUNCTIONS
 #include "TimeSteppingMethods.h"
 #include "Allocation.h"
+#include "AdvectionPointCalcs.h"
 //#include "Bilinear.h"
 
 using namespace std;
@@ -46,16 +48,16 @@ int main(){
     /* UPDATE ALL THE FOLLOWING VALUES */
     double xlim1 = 0.0;                       //Lower limit on x-axis
     double xlim2 = 1.0;                      //Upper limit on x-axis
-    int nx = 64 + 1;                         //Number of nodes in x-direction INCLUDING THE EXTREME VALUES
+    unsigned int nx = 128 + 1;                         //Number of nodes in x-direction INCLUDING THE EXTREME VALUES
     
     double ylim1 = 0.0;                       //Lower limit on y-axis
     double ylim2 = 1.0;                     //Upper limit on y-axis
-    int ny = 64 + 1;                        //Number of nodes INCLUDING THE EXTREME VALUES
+    unsigned int ny = 128 + 1;                        //Number of nodes INCLUDING THE EXTREME VALUES
     
-    double dt = (1/100.0);                     //Length of time step
-    double Tfinal = 2.0;                    //Total time period for the simulation
-    int option = 2;                         //Option - if you need animation initialize at 1 else initialize at 2
-    int printstep = 8;                      //How frequently do you want to store the images (every nth time step)
+    double dt = (1/128.0);                     //Length of time step
+    double Tfinal = 1.0;                    //Total time period for the simulation
+    unsigned int option = 1;                         //Option - if you need animation initialize at 1 else initialize at 2
+    unsigned int printstep = 8;                      //How frequently do you want to store the images (every nth time step)
     char psischeme[] = "SuperConsistent";   //'SuperConsistent' or 'Heuns'
     char backtrace_scheme[] = "RK3" ;      //'Euler' or 'RK3'
     double T_period = 1.0;                  //Period of the velocity field
@@ -63,9 +65,7 @@ int main(){
     //MAKE SURE THAT YOU HAVE ENOUGH MEMORY SPACE IF YOU ARE STORING A LOT OF TIME STEP VALUES BECAUSE IT STORES ACROSS GRID POINTS FOR EACH PRINTSTEP
     
     /* USER UPDATE OVER */
-    double np = nx * ny; // Number of node points
-    int cornerx, cornery;   //To store indexes of corners - Not sure where they are being used
-    int n = Tfinal/dt; //Number of time steps
+    unsigned int n = Tfinal/dt; //Number of time steps
     if(option != 1)
         printstep = n;
     
@@ -83,13 +83,13 @@ int main(){
     
     
 // Removing existing files with these names if any
-    int i = remove("phi.txt");
-    i = remove("psix.txt");
-    i = remove("psiy.txt");
-    i = remove("psixy.txt");
-    i = remove("details.txt");
-    i = remove("Velocity_x.txt");
-    i = remove("Velocity_y.txt");
+    remove("phi.txt");
+    remove("psix.txt");
+    remove("psiy.txt");
+    remove("psixy.txt");
+    remove("details.txt");
+    remove("Velocity_x.txt");
+    remove("Velocity_y.txt");
     fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,0.0,T_period);
     
     /*
@@ -115,44 +115,30 @@ int main(){
     
     // TIME STEPPING LOOP
     // If only the initial and final profiles are needed
-    for(int t = 0; t < n; t++){
+    for(unsigned int t = 0; t < n; t++){
+       
+    	vector<vector<int>> tracker;
+    	tracker.resize(ny,std::vector<int>(nx,0));
+    
+    	gridarray xadv, yadv;
+    	xadv.resize(ny,vectorarray(nx,0.0));
+    	yadv.resize(ny,vectorarray(nx,0.0));
         
-        gridarray tracker;
-        tracker.resize(ny,vectorarray(nx,0.0));
+	advection_point(x, y, xadv, yadv, t, dt, T_period, backtrace_scheme);
         
-        gridarray xadv, yadv;
-        advection_point(x, y, xadv, yadv, t, dt, T_period, backtrace_scheme);
-        
-        for(int i = 0; i < ny-1; i++){  // loop for y - rows in the array
-            for(int j = 0; j < nx-1; j++){  // loop for x - columns in the array
-                
-                double phi[4], psix[4], psiy[4], psixy[4];
-                // Storing the four values for four nodes of each cell
-                phi[0] = mphi[i][j];            psix[0] = mpsix[i][j];          psiy[0] = mpsiy[i][j];          psixy[0] = mpsixy[i][j];
-                phi[1] = mphi[i][j+1];          psix[1] = mpsix[i][j+1];        psiy[1] = mpsiy[i][j+1];        psixy[1] = mpsixy[i][j+1];
-                phi[2] = mphi[i+1][j];          psix[2] = mpsix[i+1][j];        psiy[2] = mpsiy[i+1][j];        psixy[2] = mpsixy[i+1][j];
-                phi[3] = mphi[i+1][j+1];        psix[3] = mpsix[i+1][j+1];      psiy[3] = mpsiy[i+1][j+1];      psixy[3] = mpsixy[i+1][j+1];
-                // Node value assignment ends
-                
-                // Storing the coordinates of first node of the working cell
-                double xo = x[j], yo = y[i];
-                int corner = -1;    // To save which node of the cell is the grid corner if a corner is encountered
-                
-                // calculate 4 nodal values on the cell
-#include "update_node_data.h"
-                
-            }   // end of x-columns marching
-        }   // end of y-rows marching
-        
-        //---------------------------------------------------------------------------------------------------------
-        
-        
+    	gridarray cellx, celly;
+    	cellx.resize(ny,vectorarray(nx,0.0));
+    	celly.resize(ny,vectorarray(nx,0.0));
+	
+	find_advection_point_location(x, y, xadv, yadv, cellx, celly, tracker, xlim1, xlim2, ylim1, ylim2);
+
+	update_levelset_data(x, y, xadv, yadv, cellx, celly, tracker, t, dt, 
+				tempphi, temppsix, temppsiy, temppsixy, mphi, mpsix, mpsiy, mpsixy,
+				psischeme,backtrace_scheme,T_period);	
+	
         //---------------------------------------------------------------------------------------------------------
         // Update the mixed derivatives now for the remaining grid points
-#include "update_mixed_derivatives.h"
-        
-        //---------------------------------------------------------------------------------------------------------
-        
+	#include "update_mixed_derivatives.h"
         
         //---------------------------------------------------------------------------------------------------------
         // Feeding values back to the master matrix
@@ -163,9 +149,6 @@ int main(){
         mpsixy = temppsixy;
         
         //---------------------------------------------------------------------------------------------------------
-        
-        
-        //---------------------------------------------------------------------------------------------------------
         // Feeding phi, psix, psiy and psixy values in their respective files
         if((t+1) % printstep == 0)
             fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,(t+1)*dt,T_period);
@@ -174,7 +157,11 @@ int main(){
         cout<< " Time Step Completed" <<'\n';
         
         //---------------------------------------------------------------------------------------------------------
-        
+	xadv.clear();
+	yadv.clear();
+	tracker.clear();        
+	cellx.clear();
+	celly.clear();
     }  // end of time marching loop
     
     return 0;

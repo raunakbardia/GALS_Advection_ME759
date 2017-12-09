@@ -32,5 +32,5 @@ gals_advection: GALS_Advection.cpp
 
 .PHONY: clean
 clean:
-	rm -f *.o *.exe *.dat *.out
+	rm -f *.o *.exe *.dat *.out *.txt
 	rm GALS_Advection

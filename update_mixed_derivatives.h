@@ -7,8 +7,8 @@ double dxy1, dxy2;
 double d1, d2, d3, d4;  //Temporary variable to compute mixed derivatives
 
 
-for(int k = 0; k < ny; k++){
-    for(int l = 0; l < nx; l++){
+for(unsigned int k = 0; k < ny; k++){
+    for(unsigned int l = 0; l < nx; l++){
         if ((k == 0 || k == ny - 1) && (l != 0 && l != nx - 1)){
             temppsixy[k][l] = (temppsiy[k][l+1] - temppsiy[k][l-1])/(2 * dx);
         }

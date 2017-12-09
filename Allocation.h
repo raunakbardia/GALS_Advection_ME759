@@ -2,7 +2,7 @@
 //  Allocation.h
 //
 //
-//  Created by Raunak Bardia on 10/10/14.
+//  Created by Raunak Bardia on 12/01/17.
 //
 //
 
@@ -11,7 +11,7 @@
 
 namespace galsfunctions
 {
-    void allocate_levelset_matrices(gridarray& mphi, gridarray& mpsix, gridarray& mpsiy, gridarray& mpsixy, vectorarray& x, vectorarray& y, int nx, int ny)
+    void allocate_levelset_matrices(gridarray& mphi, gridarray& mpsix, gridarray& mpsiy, gridarray& mpsixy, vectorarray& x, vectorarray& y, unsigned int nx, unsigned int ny)
     {
         // master matrices of phi, psix, psiy, psixy which are updated at each time step & temporary matrices which is updated constantly throughout the cell iterations
         mphi.resize(ny,vectorarray(nx,0.0));
@@ -19,8 +19,8 @@ namespace galsfunctions
         mpsiy.resize(ny,vectorarray(nx,0.0));
         mpsixy.resize(ny,vectorarray(nx,0.0));
         
-        for(int i = 0; i < ny; i++){
-            for(int j = 0; j < nx; j++){
+        for(unsigned int i = 0; i < ny; i++){
+            for(unsigned int j = 0; j < nx; j++){
                 mphi[i][j] = initialize(x[j], y[i]);
                 mpsix[i][j] = derivxinit(x[j], y[i]);
                 mpsiy[i][j] = derivyinit(x[j], y[i]);
@@ -29,13 +29,13 @@ namespace galsfunctions
         }
     }
     
-    void allocate_levelset_velocity(gridarray& u, gridarray& v, int nx, int ny, vectorarray& x, vectorarray& y, double time, double T_period)
+    void allocate_levelset_velocity(gridarray& u, gridarray& v, unsigned int nx, unsigned int ny, vectorarray& x, vectorarray& y, double time, double T_period)
     {
         u.resize(ny,vectorarray(nx,0.0));
         v.resize(ny,vectorarray(nx,0.0));
         
-        for(int i = 0; i < ny; i++){
-            for(int j = 0; j < nx; j++){
+        for(unsigned int i = 0; i < ny; i++){
+            for(unsigned int j = 0; j < nx; j++){
                 
                 u[i][j] = Velx(x[j],y[i],time, T_period);
                 v[i][j] = Vely(x[j],y[i],time, T_period);
@@ -43,19 +43,19 @@ namespace galsfunctions
         }
     }
     
-    void gridnodes(vectorarray& x, vectorarray& y, double xlim1, double ylim1, double dx, double dy, int nx, int ny)
+    void gridnodes(vectorarray& x, vectorarray& y, double xlim1, double ylim1, double dx, double dy, unsigned int nx, unsigned int ny)
     {
         // Defining node points
         x.resize(nx,0.0);
         y.resize(ny,0.0);
-        for(int i = 0; i < nx; i++)
+        for(unsigned int i = 0; i < nx; i++)
             x[i] = xlim1 + dx * i;
-        for(int i = 0; i < ny; i++)
+        for(unsigned int i = 0; i < ny; i++)
             y[i] = ylim1 + dy * i;
         // Node point definition ends
     }
     
-    void fileprint(gridarray& mphi, gridarray& mpsix, gridarray& mpsiy, gridarray& mpsixy, int nx, int ny,
+    void fileprint(gridarray& mphi, gridarray& mpsix, gridarray& mpsiy, gridarray& mpsixy, unsigned int nx, unsigned int ny,
             vectorarray& x, vectorarray& y, double time, double T_period)
     {
         gridarray u, v;
@@ -69,7 +69,7 @@ namespace galsfunctions
         ufile.open("Velocity_x.txt", ios::out | ios::app);
         vfile.open("Velocity_y.txt",ios::out | ios::app);
         
-        for(int i = 0; i < ny; i++){
+        for(unsigned int i = 0; i < ny; i++){
             
             // Initializing the first element of each row separately to avoid trailing commas in the file
             phifile << std::fixed << std::setprecision(10) << mphi[i][0];
@@ -79,7 +79,7 @@ namespace galsfunctions
             ufile << std::fixed << std::setprecision(10) << u[i][0];
             vfile << std::fixed << std::setprecision(10) << v[i][0];
             
-            for(int j = 1; j < nx; j++){
+            for(unsigned int j = 1; j < nx; j++){
                 phifile << "," << std::fixed << std::setprecision(10) << mphi[i][j];
                 psixfile << "," << std::fixed << std::setprecision(10) << mpsix[i][j];
                 psiyfile << "," << std::fixed << std::setprecision(10) << mpsiy[i][j];
