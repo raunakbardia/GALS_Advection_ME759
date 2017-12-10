@@ -44,16 +44,16 @@ using namespace galsfunctions;
 // y direction is the first index of array, x direction is the second index of array
 
 int main(){
-    
+
     /* UPDATE ALL THE FOLLOWING VALUES */
     double xlim1 = 0.0;                       //Lower limit on x-axis
     double xlim2 = 1.0;                      //Upper limit on x-axis
     unsigned int nx = 128 + 1;                         //Number of nodes in x-direction INCLUDING THE EXTREME VALUES
-    
+
     double ylim1 = 0.0;                       //Lower limit on y-axis
     double ylim2 = 1.0;                     //Upper limit on y-axis
     unsigned int ny = 128 + 1;                        //Number of nodes INCLUDING THE EXTREME VALUES
-    
+
     double dt = (1/128.0);                     //Length of time step
     double Tfinal = 1.0;                    //Total time period for the simulation
     unsigned int option = 1;                         //Option - if you need animation initialize at 1 else initialize at 2
@@ -61,28 +61,28 @@ int main(){
     char psischeme[] = "SuperConsistent";   //'SuperConsistent' or 'Heuns'
     char backtrace_scheme[] = "RK3" ;      //'Euler' or 'RK3'
     double T_period = 1.0;                  //Period of the velocity field
-    
+
     //MAKE SURE THAT YOU HAVE ENOUGH MEMORY SPACE IF YOU ARE STORING A LOT OF TIME STEP VALUES BECAUSE IT STORES ACROSS GRID POINTS FOR EACH PRINTSTEP
-    
+
     /* USER UPDATE OVER */
     unsigned int n = Tfinal/dt; //Number of time steps
     if(option != 1)
         printstep = n;
-    
+
     // Node Locations
     double dx = (xlim2 - xlim1)/(nx - 1);
     double dy = (ylim2 - ylim1)/(ny - 1);
     vectorarray x,y;
     gridnodes(x,y,xlim1,ylim1,dx,dy,nx,ny);
-    
+
     // Initializing at t = 0
     gridarray mphi, mpsix, mpsiy, mpsixy; // level set matrix
     allocate_levelset_matrices(mphi,mpsix,mpsiy,mpsixy,x,y,nx,ny); //Initializing level set matrices
-    
+
     gridarray tempphi(mphi), temppsix(mpsix), temppsiy(mpsiy), temppsixy(mpsixy);	// Making level set matrix copies for time loop use
-    
-    
-// Removing existing files with these names if any
+
+
+    // Removing existing files with these names if any
     remove("phi.txt");
     remove("psix.txt");
     remove("psiy.txt");
@@ -91,7 +91,7 @@ int main(){
     remove("Velocity_x.txt");
     remove("Velocity_y.txt");
     fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,0.0,T_period);
-    
+
     /*
      * Let the following represent one cell
      *
@@ -107,62 +107,62 @@ int main(){
      * Hence, tempindexes take care of these changes
      *
      */
-    
+
     ofstream details;
     details.open("details.txt", ios::out | ios::app);
     details<< nx << "," << ny << "," << std::fixed << std::setprecision(10) << dx << "," << dy << "," << xlim1 << "," << xlim2 << "," << ylim1 << "," << ylim2 << "," << n << "," << dt << "," << printstep;
     details.close();
-    
+
     // TIME STEPPING LOOP
     // If only the initial and final profiles are needed
     for(unsigned int t = 0; t < n; t++){
-       
-    	vector<vector<int>> tracker;
-    	tracker.resize(ny,std::vector<int>(nx,0));
-    
-    	gridarray xadv, yadv;
-    	xadv.resize(ny,vectorarray(nx,0.0));
-    	yadv.resize(ny,vectorarray(nx,0.0));
-        
-	advection_point(x, y, xadv, yadv, t, dt, T_period, backtrace_scheme);
-        
-    	gridarray cellx, celly;
-    	cellx.resize(ny,vectorarray(nx,0.0));
-    	celly.resize(ny,vectorarray(nx,0.0));
-	
-	find_advection_point_location(x, y, xadv, yadv, cellx, celly, tracker, xlim1, xlim2, ylim1, ylim2);
 
-	update_levelset_data(x, y, xadv, yadv, cellx, celly, tracker, t, dt, 
-				tempphi, temppsix, temppsiy, temppsixy, mphi, mpsix, mpsiy, mpsixy,
-				psischeme,backtrace_scheme,T_period);	
-	
+        vector<vector<int>> tracker;
+        tracker.resize(ny,std::vector<int>(nx,0));
+
+        gridarray xadv, yadv;
+        xadv.resize(ny,vectorarray(nx,0.0));
+        yadv.resize(ny,vectorarray(nx,0.0));
+
+        advection_point(x, y, xadv, yadv, t, dt, T_period, backtrace_scheme);
+
+        gridarray cellx, celly;
+        cellx.resize(ny,vectorarray(nx,0.0));
+        celly.resize(ny,vectorarray(nx,0.0));
+
+        find_advection_point_location(x, y, xadv, yadv, cellx, celly, tracker, xlim1, xlim2, ylim1, ylim2);
+
+        update_levelset_data(x, y, xadv, yadv, cellx, celly, tracker, t, dt,
+                             tempphi, temppsix, temppsiy, temppsixy, mphi, mpsix, mpsiy, mpsixy,
+                             psischeme,backtrace_scheme,T_period);
+
         //---------------------------------------------------------------------------------------------------------
         // Update the mixed derivatives now for the remaining grid points
-	#include "update_mixed_derivatives.h"
-        
+#include "update_mixed_derivatives.h"
+
         //---------------------------------------------------------------------------------------------------------
         // Feeding values back to the master matrix
-        
+
         mphi = tempphi;
         mpsix = temppsix;
         mpsiy = temppsiy;
         mpsixy = temppsixy;
-        
+
         //---------------------------------------------------------------------------------------------------------
         // Feeding phi, psix, psiy and psixy values in their respective files
-        if((t+1) % printstep == 0)
+        if((t+1) % printstep == 0 || t == n-1)
             fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,(t+1)*dt,T_period);
-        
+
         cout<< t+1;
         cout<< " Time Step Completed" <<'\n';
-        
+
         //---------------------------------------------------------------------------------------------------------
-	xadv.clear();
-	yadv.clear();
-	tracker.clear();        
-	cellx.clear();
-	celly.clear();
+        xadv.clear();
+        yadv.clear();
+        tracker.clear();
+        cellx.clear();
+        celly.clear();
     }  // end of time marching loop
-    
+
     return 0;
 }
