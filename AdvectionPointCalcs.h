@@ -21,8 +21,8 @@ namespace galsfunctions
         unsigned int nx = x.size();
         unsigned int ny = y.size();
         
-        for(unsigned int i = 0; i < ny; i++){  // loop for y - rows in the array
-            for(unsigned int j = 0; j < nx; j++){  // loop for x - columns in the array
+        for(unsigned int i = 0; i < ny - 1; i++){  // loop for y - rows in the array
+            for(unsigned int j = 0; j < nx - 1; j++){  // loop for x - columns in the array
                 
                 double ux = Velx(x[j], y[i], (t + 1) * dt, T_period);
                 double vy = Vely(x[j], y[i], (t + 1) * dt, T_period);
@@ -58,8 +58,8 @@ namespace galsfunctions
         unsigned int nx = x.size();
         unsigned int ny = y.size();
         
-        for(unsigned int i = 0; i < ny; i++){
-            for(unsigned int j = 0; j < nx; j++){
+        for(unsigned int i = 0; i < ny - 1; i++){
+            for(unsigned int j = 0; j < nx - 1; j++){
                 std::vector<double>::iterator locate;
                 bool xoutofbounds = false;
                 bool youtofbounds = false;
@@ -156,8 +156,8 @@ namespace galsfunctions
         unsigned int ny = y.size();
         double dy = y[2] - y[1];
         
-        for(unsigned int i = 0; i < ny; i++){  // loop for y - rows in the array
-            for(unsigned int j = 0; j < nx; j++){  // loop for x - columns in the array
+        for(unsigned int i = 0; i < ny - 1; i++){  // loop for y - rows in the array
+            for(unsigned int j = 0; j < nx - 1; j++){  // loop for x - columns in the array
                 
                 double phi[4], psix[4], psiy[4], psixy[4];
                 

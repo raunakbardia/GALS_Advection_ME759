@@ -150,7 +150,7 @@ int main(){
         
         //---------------------------------------------------------------------------------------------------------
         // Feeding phi, psix, psiy and psixy values in their respective files
-        if((t+1) % printstep == 0)
+        if((t+1) % printstep == 0 || t == n-1)
             fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,(t+1)*dt,T_period);
         
         cout<< t+1;
