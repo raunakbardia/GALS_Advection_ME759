@@ -31,7 +31,7 @@ for(unsigned int k = 0; k < ny; k++){
                         d3 = (temppsix[1][nx-1] - temppsix[0][nx-1])/dy;
                         d4 = (temppsiy[1][nx-1] - temppsiy[1][nx-2])/dx;
                         temppsixy[k][l] = 0.75 * (d1 + d3) - 0.25 * (d2 + d4);
-                        
+
                     }
                     else if(k == ny-1 && l == 0){
                         d1 = (temppsiy[ny-2][1] - temppsiy[ny-2][0])/dx;
@@ -39,7 +39,7 @@ for(unsigned int k = 0; k < ny; k++){
                         d3 = (temppsix[ny-1][1] - temppsix[ny-2][1])/dy;
                         d4 = (temppsiy[ny-1][1] - temppsiy[ny-1][0])/dx;
                         temppsixy[k][l] = 0.75 * (d2 + d4) - 0.25 * (d3 + d1);
-                        
+
                     }
                     else if(k == ny-1 && l == nx-1){
                         d1 = (temppsiy[ny-2][nx-1] - temppsiy[ny-2][nx-2])/dx;
@@ -48,7 +48,7 @@ for(unsigned int k = 0; k < ny; k++){
                         d4 = (temppsiy[ny-1][nx-1] - temppsiy[ny-1][nx-2])/dx;
                         temppsixy[k][l] = 0.75 * (d3 + d4) - 0.25 * (d1 + d2);
                     }
-                    
+
                 }
                 else{
                     dxy1 = (temppsiy[k][l+1] - temppsiy[k][l-1])/(2 * dx);
