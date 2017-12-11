@@ -98,5 +98,15 @@ namespace galsfunctions
         phifile << '\n';           psixfile << '\n';             psiyfile << '\n';            psixyfile << '\n';             ufile << '\n';         vfile << '\n';
         phifile.close();       psixfile.close();         psiyfile.close();          psixyfile.close();         ufile.close();        vfile.close();
     }
+
+    
+    // create contiguous-memory 2D matrices, A[i][j], used for MPI 
+    double **alloc_2d_int(unsigned int rows, unsigned int cols) {
+    double *data = (double *)malloc(rows*cols*sizeof(double));
+    double **array= (double **)malloc(rows*sizeof(double*));
+    for (unsigned int i=0; i<rows; i++)
+        array[i] = &(data[cols*i]);
+    return array;
+    }
 }
 #endif
