@@ -127,7 +127,8 @@ int main(int argc, char **argv){
 
 	// used for MPI only, here I use 2 nodes
 	unsigned int n_Nodes = 2;
-	// initialize the matrices
+
+	// initialize the memory contiguous matrices
 	double **A, **B, **A1, **B1;
 	unsigned int nnx = nx/n_Nodes;
 
@@ -135,7 +136,7 @@ int main(int argc, char **argv){
 	B = alloc_2d_int(ny,nnx);
 	A1 = alloc_2d_int(ny,nnx);
 	B1 = alloc_2d_int(ny,nnx);
-
+	// end of initialization
 
 
    // node-1

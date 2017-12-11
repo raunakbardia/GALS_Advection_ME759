@@ -1,7 +1,7 @@
 #!/bin/sh
 #SBATCH --partition=slurm_shortgpu
-#SBATCH --nodes=1
-#SBATCH --tasks=1
+#SBATCH --nodes=2
+#SBATCH --tasks=2
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=40
 #SBATCH -e job_err
@@ -16,7 +16,7 @@
 
 ##./GALS_Advection 
 
-mpiexec -np 1 ./GALS_Advection
+mpiexec -np 2 ./GALS_Advection
 
 mv job_out ggg.out
 mv job_err ggg.err
