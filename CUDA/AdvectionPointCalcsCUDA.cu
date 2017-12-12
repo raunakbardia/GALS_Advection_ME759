@@ -97,10 +97,10 @@ __global__ void find_advection_point_location_cuda(double *x, double *y, double 
         {
             tracker[indexToWrite] = 2;
             cellx[indexToWrite] = locationAlgo(x,xadv[indexToWrite],nx);
-            if(yadv[indexToWrite] < ylim1)
+            if(yadv[indexToWrite] <= ylim1)
                 celly[indexToWrite] = 0;
             else
-                if(yadv[indexToWrite] > ylim2)
+                if(yadv[indexToWrite] >= ylim2)
                     celly[indexToWrite] = ny-2;
         }
         else
@@ -108,40 +108,15 @@ __global__ void find_advection_point_location_cuda(double *x, double *y, double 
             {
                 tracker[indexToWrite] = 3;
                 celly[indexToWrite] = locationAlgo(y,yadv[indexToWrite],ny);
-                if(xadv[indexToWrite] < xlim1)
+                if(xadv[indexToWrite] <= xlim1)
                     cellx[indexToWrite] = 0;
                 else
-                    if(xadv[indexToWrite] > xlim2)
+                    if(xadv[indexToWrite] >= xlim2)
                         cellx[indexToWrite] = nx-2;
             }
             else
                 if(xoutofbounds && youtofbounds)
-                {
                     tracker[indexToWrite] = 4;
-                    if(xadv[indexToWrite] < xlim1 && yadv[indexToWrite] < ylim1)
-                    {
-                        cellx[indexToWrite] = 0;
-                        celly[indexToWrite] = 0;
-                    }
-                    else
-                        if(xadv[indexToWrite] < xlim1 && yadv[indexToWrite] > ylim2)
-                        {
-                            cellx[indexToWrite] = 0;
-                            celly[indexToWrite] = ny-2;
-                        }
-                        else
-                            if(xadv[indexToWrite] > xlim2 && yadv[indexToWrite] < ylim1)
-                            {
-                                cellx[indexToWrite] = nx-2;
-                                celly[indexToWrite] = 0;
-                            }
-                            else
-                                if(xadv[indexToWrite] > xlim2 && yadv[indexToWrite] > ylim2)
-                                {
-                                    cellx[indexToWrite] = nx-2;
-                                    celly[indexToWrite] = ny-2;
-                                }
-                }
 }
 
 __global__ void update_levelset_data_cuda(double *x, double *y, double *xadv, double *yadv, unsigned int *cellx,

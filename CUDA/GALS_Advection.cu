@@ -32,7 +32,7 @@
 #include <tuple>
 #include <cuda.h>
 #include "Allocation.h"
-#include "InitializeHermite.h"
+#include "InitializeLevelSet.h"
 
 //Including Kernel
 #include "AdvectionPointCalcsCUDA.cu"

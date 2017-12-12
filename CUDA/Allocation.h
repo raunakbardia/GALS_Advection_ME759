@@ -5,7 +5,7 @@
 //  Created by Raunak Bardia on 12/01/17.
 //
 //
-#include "InitializeHermite.h"
+#include "InitializeLevelSet.h"
 #include "VortexVelocityCUDA.cu"
 
 using namespace std;
