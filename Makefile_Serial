@@ -8,7 +8,6 @@ ARCH	:= -march=native
 # Language standard
 CCSTD	:= -std=c99
 CXXSTD	:= -std=c++11
-CXXXSTD := -std=c++14
 
 # Linker options
 LDOPT	:= $(OPT)
@@ -24,9 +23,9 @@ debug : $(EXEC)
 
 all : gals_advection
 
-gals_advection: GALS_Advection_MPI.cpp
+gals_advection: GALS_Advection.cpp
 	@ echo Compiling $<...
-	mpicxx $(CXXXSTD) GALS_Advection_MPI.cpp -o GALS_Advection $(WFLAGS) $(OPT) $(LDFLAGS) $(CFLAGS) $(CXXSTD) #-pg -fprofile-arcs -ftest-coverage
+	$(CXX) GALS_Advection.cpp -o GALS_Advection $(WFLAGS) $(OPT) $(LDFLAGS) $(CFLAGS) $(CXXSTD) #-pg -fprofile-arcs -ftest-coverage
 
 # TODO: add targets for building executables
 

@@ -32,14 +32,15 @@
 #include <tuple>
 #include "VariableDefinitions.h"
 #include "Hermite.h"
-#include "Initializer_vortex.h"    //UPDATE THIS HEADER FILE WITH THE RELEVANT FUNCTIONS
+#include "InitializeLevelSet.h"    //UPDATE THIS HEADER FILE WITH THE RELEVANT FUNCTIONS
+#include "VortexVelocity.h"    //UPDATE THIS HEADER FILE WITH THE RELEVANT FUNCTIONS
 #include "TimeSteppingMethods.h"
 #include "Allocation.h"
 #include "AdvectionPointCalcs.h"
+#include "Constants.h"
+
 #include <mpi.h>  	 // used for MPI
 #include "defineMPI.h"   // used for MPI
-
-//#include "Bilinear.h"
 
 using namespace std;
 using namespace galsfunctions;
@@ -117,8 +118,8 @@ int main(int argc, char **argv){
     gettimeofday(&start1,NULL);  // start the timer
     for(unsigned int t = 0; t < n; t++){
 
-        vector<vector<int>> tracker;
-        tracker.resize(ny,std::vector<int>(nx,0));
+	intgridarray tracker;
+        tracker.resize(ny,intvectorarray(nx,0));
 
         gridarray xadv, yadv;
         xadv.resize(ny,vectorarray(nx,0.0));
@@ -178,20 +179,19 @@ int main(int argc, char **argv){
         }
 	// done for MPI task 
 
+    		intgridarray cellx, celly;
+    		cellx.resize(ny,intvectorarray(nx,0));
+    		celly.resize(ny,intvectorarray(nx,0));
+	
+		find_advection_point_location(x, y, xadv, yadv, cellx, celly, tracker, xlim1, xlim2, ylim1, ylim2);
 
-        gridarray cellx, celly;
-        cellx.resize(ny,vectorarray(nx,0.0));
-        celly.resize(ny,vectorarray(nx,0.0));
-
-        find_advection_point_location(x, y, xadv, yadv, cellx, celly, tracker, xlim1, xlim2, ylim1, ylim2);
-
-        update_levelset_data(x, y, xadv, yadv, cellx, celly, tracker, t, dt,
-                             tempphi, temppsix, temppsiy, temppsixy, mphi, mpsix, mpsiy, mpsixy,
-                             psischeme,backtrace_scheme,T_period);
-
+		update_levelset_data(x, y, xadv, yadv, cellx, celly, tracker, t, dt, 
+				tempphi, temppsix, temppsiy, temppsixy, mphi, mpsix, mpsiy, mpsixy,
+				psischeme,backtrace_scheme,T_period);	
+        
         //---------------------------------------------------------------------------------------------------------
         // Update the mixed derivatives now for the remaining grid points
-	#include "update_mixed_derivatives.h"
+        	update_mixed_derivatives(temppsix, temppsiy, temppsixy, nx, ny, dx, dy);
 
         //---------------------------------------------------------------------------------------------------------
         // Feeding values back to the master matrix
@@ -203,7 +203,7 @@ int main(int argc, char **argv){
 
         //---------------------------------------------------------------------------------------------------------
         // Feeding phi, psix, psiy and psixy values in their respective files
-        if((t+1) % printstep == 0 || t == n-1)
+        if((t+1) % printstep == 0)
             fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,(t+1)*dt,T_period);
 
         cout<< t+1;

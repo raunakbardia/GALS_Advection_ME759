@@ -8,12 +8,6 @@
 #SBATCH -o job_out
 ###SBATCH --gres=gpu:1 # not needed for OpenMP
 
-
-#for((i=1; i<21;i++))
-#do
-##    ./problem3 $i
-#done
-
 ##./GALS_Advection 
 
 mpiexec -np 2 ./GALS_Advection

@@ -23,7 +23,7 @@ namespace galsfunctions
     //  unsigned int nx = x.size();
         unsigned int ny = y.size();
 
-        for(unsigned int i = 0; i < ny - 1; i++){  // loop for y - rows in the array
+        for(unsigned int i = 0; i < ny; i++){  // loop for y - rows in the array
             for(unsigned int j = ny_Node_min; j < ny_Node_max; j++){  // loop for x - columns in the array
 
                 double ux = Velx(x[j], y[i], (t + 1) * dt, T_period);
@@ -95,14 +95,14 @@ namespace galsfunctions
     }
 
     void find_advection_point_location (vectorarray &x, vectorarray &y, gridarray &xadv, gridarray &yadv,
-                                        gridarray &cellx, gridarray &celly, std::vector<std::vector<int>> &tracker,
-                                        double xlim1, double xlim2, double ylim1, double ylim2)
+            intgridarray &cellx, intgridarray &celly, intgridarray &tracker,
+	    double xlim1, double xlim2, double ylim1, double ylim2)
     {
         unsigned int nx = x.size();
         unsigned int ny = y.size();
 
-        for(unsigned int i = 0; i < ny - 1; i++){
-            for(unsigned int j = 0; j < nx - 1; j++){
+        for(unsigned int i = 0; i < ny; i++){
+            for(unsigned int j = 0; j < nx; j++){
                 std::vector<double>::iterator locate;
                 bool xoutofbounds = false;
                 bool youtofbounds = false;
@@ -124,14 +124,14 @@ namespace galsfunctions
                     if(!xoutofbounds && youtofbounds)
                     {
                         tracker[i][j] = 2;
-                        if(yadv[i][j] < ylim1)
+                        if(yadv[i][j] <= ylim1)
                         {
                             locate = std::lower_bound(x.begin(), x.end(), xadv[i][j]);
                             cellx[i][j] = locate - x.begin() - 1;
                             celly[i][j] = 0;
                         }
                         else
-                            if(yadv[i][j] > ylim2)
+                            if(yadv[i][j] >= ylim2)
                             {
                                 locate = std::lower_bound(x.begin(), x.end(), xadv[i][j]);
                                 cellx[i][j] = locate - x.begin() - 1;
@@ -142,14 +142,14 @@ namespace galsfunctions
                         if(xoutofbounds && !youtofbounds)
                         {
                             tracker[i][j] = 3;
-                            if(xadv[i][j] < xlim1)
+                            if(xadv[i][j] <= xlim1)
                             {
                                 locate = std::lower_bound(y.begin(), y.end(), yadv[i][j]);
                                 celly[i][j] = locate - y.begin() - 1;
                                 cellx[i][j] = 0;
                             }
                             else
-                                if(xadv[i][j] > xlim2)
+                                if(xadv[i][j] >= xlim2)
                                 {
                                     locate = std::lower_bound(y.begin(), y.end(), yadv[i][j]);
                                     celly[i][j] = locate - y.begin() - 1;
@@ -158,49 +158,24 @@ namespace galsfunctions
                         }
                         else
                             if(xoutofbounds && youtofbounds)
-                            {
                                 tracker[i][j] = 4;
-                                if(xadv[i][j] < xlim1 && yadv[i][j] < ylim1)
-                                {
-                                    cellx[i][j] = 0;
-                                    celly[i][j] = 0;
-                                }
-                                else
-                                    if(xadv[i][j] < xlim1 && yadv[i][j] > ylim2)
-                                    {
-                                        cellx[i][j] = 0;
-                                        celly[i][j] = ny-2;
-                                    }
-                                    else
-                                        if(xadv[i][j] > xlim2 && yadv[i][j] < ylim1)
-                                        {
-                                            cellx[i][j] = nx-2;
-                                            celly[i][j] = 0;
-                                        }
-                                        else
-                                            if(xadv[i][j] > xlim2 && yadv[i][j] > ylim2)
-                                            {
-                                                cellx[i][j] = nx-2;
-                                                celly[i][j] = ny-2;
-                                            }
-                            }
             }
         }
     }
 
     void update_levelset_data(vectorarray &x, vectorarray &y, gridarray &xadv, gridarray &yadv,
-                              gridarray &cellx, gridarray &celly, std::vector<std::vector<int>> &tracker, unsigned int t, double dt,
-                              gridarray &tempphi, gridarray &temppsix, gridarray &temppsiy, gridarray &temppsixy,
-                              gridarray &mphi, gridarray &mpsix, gridarray &mpsiy, gridarray &mpsixy, char psischeme[],
-                              char backtrace_scheme[], double T_period){
+            intgridarray &cellx, intgridarray &celly, intgridarray &tracker, unsigned int t, double dt,
+            gridarray &tempphi, gridarray &temppsix, gridarray &temppsiy, gridarray &temppsixy,
+            gridarray &mphi, gridarray &mpsix, gridarray &mpsiy, gridarray &mpsixy, char psischeme[],
+            char backtrace_scheme[], double T_period){
 
         unsigned int nx = x.size();
         double dx = x[2] - x[1];
         unsigned int ny = y.size();
         double dy = y[2] - y[1];
 
-        for(unsigned int i = 0; i < ny - 1; i++){  // loop for y - rows in the array
-            for(unsigned int j = 0; j < nx - 1; j++){  // loop for x - columns in the array
+        for(unsigned int i = 0; i < ny; i++){  // loop for y - rows in the array
+            for(unsigned int j = 0; j < nx; j++){  // loop for x - columns in the array
 
                 double phi[4], psix[4], psiy[4], psixy[4];
 
@@ -255,5 +230,63 @@ namespace galsfunctions
             }
         }
     }
+
+void update_mixed_derivatives(gridarray &temppsix, gridarray &temppsiy, gridarray &temppsixy,
+				unsigned int nx, unsigned int ny, double dx, double dy)
+{
+double dxy1, dxy2;
+double d1, d2, d3, d4;  //Temporary variable to compute mixed derivatives
+
+for(unsigned int k = 0; k < ny; k++){
+    for(unsigned int l = 0; l < nx; l++){
+        if ((k == 0 || k == ny - 1) && (l != 0 && l != nx - 1)){
+            temppsixy[k][l] = (temppsiy[k][l+1] - temppsiy[k][l-1])/(2 * dx);
+        }
+        else
+            if ((k != 0 && k != ny - 1) && (l == 0 || l == nx - 1)){
+                temppsixy[k][l] = (temppsix[k+1][l] - temppsix[k-1][l])/(2 * dy);
+            }
+            else
+                if((k == 0 || k == ny - 1) && (l == 0 || l == nx - 1)){
+                    if(k == 0 && l == 0){
+                        d1 = (temppsiy[0][1] - temppsiy[0][0])/dx;
+                        d2 = (temppsix[1][0] - temppsix[0][0])/dy;
+                        d3 = (temppsix[1][1] - temppsix[0][1])/dy;
+                        d4 = (temppsiy[1][1] - temppsiy[1][0])/dx;
+                        temppsixy[k][l] = 0.75 * (d1 + d2) - 0.25 * (d3 + d4);
+                    }
+                    else if(k == 0 && l == nx-1){
+                        d1 = (temppsiy[0][nx-1] - temppsiy[0][nx-2])/dx;
+                        d2 = (temppsix[1][nx-2] - temppsix[0][nx-2])/dy;
+                        d3 = (temppsix[1][nx-1] - temppsix[0][nx-1])/dy;
+                        d4 = (temppsiy[1][nx-1] - temppsiy[1][nx-2])/dx;
+                        temppsixy[k][l] = 0.75 * (d1 + d3) - 0.25 * (d2 + d4);
+                        
+                    }
+                    else if(k == ny-1 && l == 0){
+                        d1 = (temppsiy[ny-2][1] - temppsiy[ny-2][0])/dx;
+                        d2 = (temppsix[ny-1][0] - temppsix[ny-2][0])/dy;
+                        d3 = (temppsix[ny-1][1] - temppsix[ny-2][1])/dy;
+                        d4 = (temppsiy[ny-1][1] - temppsiy[ny-1][0])/dx;
+                        temppsixy[k][l] = 0.75 * (d2 + d4) - 0.25 * (d3 + d1);
+                        
+                    }
+                    else if(k == ny-1 && l == nx-1){
+                        d1 = (temppsiy[ny-2][nx-1] - temppsiy[ny-2][nx-2])/dx;
+                        d2 = (temppsix[ny-1][nx-2] - temppsix[ny-2][nx-2])/dy;
+                        d3 = (temppsix[ny-1][nx-1] - temppsix[ny-2][nx-1])/dy;
+                        d4 = (temppsiy[ny-1][nx-1] - temppsiy[ny-1][nx-2])/dx;
+                        temppsixy[k][l] = 0.75 * (d3 + d4) - 0.25 * (d1 + d2);
+                    }
+                    
+                }
+                else{
+                    dxy1 = (temppsiy[k][l+1] - temppsiy[k][l-1])/(2 * dx);
+                    dxy2 = (temppsix[k+1][l] - temppsix[k-1][l])/(2 * dy);
+                    temppsixy[k][l] = (dxy1 + dxy2)/2.0;
+                }
+    }
+}
+}
 }
 #endif
