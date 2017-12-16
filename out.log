@@ -1,0 +1,39 @@
+Compiling GALS_Advection_MPI.cpp...
+mpicxx -std=c++14 GALS_Advection_MPI.cpp -o GALS_Advection -Wall -Wextra -Wsign-conversion -Wsign-compare -O3 -fopenmp  -std=c++11 #-pg -fprofile-arcs -ftest-coverage
+In file included from GALS_Advection_MPI.cpp:39:0:
+AdvectionPointCalcs.h:240:38: error: expected identifier before ‘,’ token
+             char backtrace_scheme[], ,unsigned int ny_Node_min, unsigned int ny_Node_max, double T_period){
+                                      ^
+AdvectionPointCalcs.h: In function ‘void galsfunctions::update_levelset_data_mpi(galsfunctions::vectorarray&, galsfunctions::vectorarray&, galsfunctions::gridarray&, galsfunctions::gridarray&, galsfunctions::intgridarray&, galsfunctions::intgridarray&, galsfunctions::intgridarray&, unsigned int, double, galsfunctions::gridarray&, galsfunctions::gridarray&, galsfunctions::gridarray&, galsfunctions::gridarray&, galsfunctions::gridarray&, galsfunctions::gridarray&, galsfunctions::gridarray&, galsfunctions::gridarray&, char*, char*, int, unsigned int, unsigned int, double)’:
+AdvectionPointCalcs.h:242:22: warning: unused variable ‘nx’ [-Wunused-variable]
+         unsigned int nx = x.size();
+                      ^~
+GALS_Advection_MPI.cpp: In function ‘int main(int, char**)’:
+GALS_Advection_MPI.cpp:163:26: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  MPI_Recv(&(A1[0][0]), ny*nx, MPI_FLOAT, source_rank, 0, MPI_COMM_WORLD, &status);
+                        ~~^~~
+GALS_Advection_MPI.cpp:164:33: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+         MPI_Recv(&(B1[0][0]), ny*nx, MPI_FLOAT, source_rank, 0, MPI_COMM_WORLD, &status);
+                               ~~^~~
+GALS_Advection_MPI.cpp:203:26: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  MPI_Recv(&(A3[0][0]), ny*nx, MPI_FLOAT, source_rank, 0, MPI_COMM_WORLD, &status);
+                        ~~^~~
+GALS_Advection_MPI.cpp:204:33: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+         MPI_Recv(&(B3[0][0]), ny*nx, MPI_FLOAT, source_rank, 0, MPI_COMM_WORLD, &status);
+                               ~~^~~
+GALS_Advection_MPI.cpp:280:26: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  MPI_Send(&(A1[0][0]), ny*ny, MPI_FLOAT, dest_rank, 0, MPI_COMM_WORLD);
+                        ~~^~~
+GALS_Advection_MPI.cpp:281:33: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+         MPI_Send(&(B1[0][0]), ny*ny, MPI_FLOAT, dest_rank, 0, MPI_COMM_WORLD);
+                               ~~^~~
+GALS_Advection_MPI.cpp:298:26: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+  MPI_Send(&(A3[0][0]), ny*ny, MPI_FLOAT, dest_rank, 0, MPI_COMM_WORLD);
+                        ~~^~~
+GALS_Advection_MPI.cpp:299:33: warning: conversion to ‘int’ from ‘unsigned int’ may change the sign of the result [-Wsign-conversion]
+         MPI_Send(&(B3[0][0]), ny*ny, MPI_FLOAT, dest_rank, 0, MPI_COMM_WORLD);
+                               ~~^~~
+GALS_Advection_MPI.cpp:306:63: warning: conversion to ‘long unsigned int’ from ‘__time_t {aka long int}’ may change the sign of the result [-Wsign-conversion]
+    diff1 = 1000000 * (end1.tv_sec-start1.tv_sec)+ end1.tv_usec-start1.tv_usec;
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+make: *** [gals_advection] Error 1

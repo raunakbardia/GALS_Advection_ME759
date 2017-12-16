@@ -130,14 +130,13 @@ int main(int argc, char **argv){
 	unsigned int n_Nodes = 2;
 
 	// initialize the memory contiguous matrices
-	double **A1, **B1, **A3, **B3, **C3;
+	double **A1, **B1, **C1, **D1;
 	unsigned int nnx = nx/n_Nodes;
 
 	A1 = alloc_2d_int(nnx,ny);
 	B1 = alloc_2d_int(nnx,ny);
-	A3 = alloc_2d_int(nnx,ny);
-	B3 = alloc_2d_int(nnx,ny);
-	C3 = alloc_2d_int(nnx,ny);
+	C1 = alloc_2d_int(nnx,ny);
+	D1 = alloc_2d_int(nnx,ny);
 	// end of initialization
 
 // 	advection_point_MPI(x, y, xadv, yadv, t, dt, T_period,0,nx, backtrace_scheme);
@@ -150,22 +149,7 @@ int main(int argc, char **argv){
 
         advection_point_MPI(x, y, xadv, yadv, t, dt, T_period,0,nnx, backtrace_scheme);
 
-	// receive the data from node-2
-	MPI_Recv(&(A1[0][0]), ny*nnx, MPI_FLOAT, source_rank, 0, MPI_COMM_WORLD, &status);
-        MPI_Recv(&(B1[0][0]), ny*nnx, MPI_FLOAT, source_rank, 0, MPI_COMM_WORLD, &status);
-
-
-	// populate the full data to xadv and yadv
-        for(unsigned int i = 0; i < ny; i++){  // loop for y - rows in the array
-           for(unsigned int j = nnx; j < nx; j++){  // loop for x - columns in the array
-        	xadv[i][j]=A1[j-nnx][i];  //the matrix received from node-2 is the transpose matrix
-        	yadv[i][j]=B1[j-nnx][i];
-           }
-        }
-	// done for MPI task 
-
-
-    	intgridarray cellx, celly;
+        intgridarray cellx, celly;
     	cellx.resize(ny,intvectorarray(nx,0));
     	celly.resize(ny,intvectorarray(nx,0));
 
@@ -173,30 +157,32 @@ int main(int argc, char **argv){
 	// do the task in node-1	
 	find_advection_point_location_MPI(x, y, xadv, yadv, cellx, celly, tracker, xlim1, xlim2, ylim1, ylim2,0,nnx);
 
-	// receive the data from node-2
-	MPI_Recv(&(A3[0][0]), ny*nnx, MPI_FLOAT, source_rank, 0, MPI_COMM_WORLD, &status);
-        MPI_Recv(&(B3[0][0]), ny*nnx, MPI_FLOAT, source_rank, 0, MPI_COMM_WORLD, &status);
-	MPI_Recv(&(C3[0][0]), ny*nnx, MPI_FLOAT, source_rank, 0, MPI_COMM_WORLD, &status);
+	update_levelset_data_mpi(x, y, xadv, yadv, cellx, celly, tracker, t, dt, 
+				tempphi, temppsix, temppsiy, temppsixy, mphi, mpsix, mpsiy, mpsixy,
+				psischeme,backtrace_scheme,0,nnx,T_period);	
+        
+        //---------------------------------------------------------------------------------------------------------
+        // Update the mixed derivatives now for the remaining grid points
+        update_mixed_derivatives_mpi(temppsix, temppsiy, temppsixy, nx, ny, dx, dy,0,nnx);
+	
 
+	// receive mpi data from node-2
+	MPI_Recv(&(A1[0][0]), ny*nnx, MPI_FLOAT, source_rank, 0, MPI_COMM_WORLD, &status);
+        MPI_Recv(&(B1[0][0]), ny*nnx, MPI_FLOAT, source_rank, 0, MPI_COMM_WORLD, &status);
+	MPI_Recv(&(C1[0][0]), ny*nnx, MPI_FLOAT, source_rank, 0, MPI_COMM_WORLD, &status);
+        MPI_Recv(&(D1[0][0]), ny*nnx, MPI_FLOAT, source_rank, 0, MPI_COMM_WORLD, &status);
 
 	// populate the full data to xadv and yadv
         for(unsigned int i = 0; i < ny; i++){  // loop for y - rows in the array
            for(unsigned int j = nnx; j < nx; j++){  // loop for x - columns in the array
-        	cellx[i][j]=A3[j-nnx][i];
-        	celly[i][j]=B3[j-nnx][i];
-		tracker[i][j]=C3[j-nnx][i];
+		tempphi[i][j]=A1[j-nnx][i];  //the matrix received from node-2 is the transpose matrix
+                temppsix[i][j]=B1[j-nnx][i];
+	       	temppsiy[i][j]=C1[j-nnx][i];
+        	temppsixy[i][j]=D1[j-nnx][i];
            }
         }
 	// done for MPI task 
 
-
-		update_levelset_data(x, y, xadv, yadv, cellx, celly, tracker, t, dt, 
-				tempphi, temppsix, temppsiy, temppsixy, mphi, mpsix, mpsiy, mpsixy,
-				psischeme,backtrace_scheme,T_period);	
-        
-        //---------------------------------------------------------------------------------------------------------
-        // Update the mixed derivatives now for the remaining grid points
-        	update_mixed_derivatives(temppsix, temppsiy, temppsixy, nx, ny, dx, dy);
 
         //---------------------------------------------------------------------------------------------------------
         // Feeding values back to the master matrix
@@ -228,9 +214,9 @@ int main(int argc, char **argv){
  
 	constexpr int dest_rank = 0;  // We send a message to Task 0
 
-
         advection_point_MPI(x, y, xadv, yadv, t, dt, T_period, nnx,nx, backtrace_scheme);
 
+/*
 	// populate data, here I transpose the matrix because for c++, matrix is read in row-wise order 
         for(unsigned int i = 0; i < ny; i++){  // loop for y - rows in the array
           for(unsigned int j = nnx; j < nx; j++){  // loop for x - columns in the array
@@ -242,7 +228,7 @@ int main(int argc, char **argv){
 	//send data to node-1
 	MPI_Send(&(A1[0][0]), ny*nnx, MPI_FLOAT, dest_rank, 0, MPI_COMM_WORLD);
         MPI_Send(&(B1[0][0]), ny*nnx, MPI_FLOAT, dest_rank, 0, MPI_COMM_WORLD);
-
+*/
 
 
 	intgridarray cellx, celly;
@@ -251,19 +237,27 @@ int main(int argc, char **argv){
 
 	find_advection_point_location_MPI(x, y, xadv, yadv, cellx, celly, tracker, xlim1, xlim2, ylim1, ylim2,nnx,nx);
 
+	update_levelset_data_mpi(x, y, xadv, yadv, cellx, celly, tracker, t, dt,
+                                tempphi, temppsix, temppsiy, temppsixy, mphi, mpsix, mpsiy, mpsixy,
+                                psischeme,backtrace_scheme,nnx,nx,T_period);
+
+	update_mixed_derivatives_mpi(temppsix, temppsiy, temppsixy, nx, ny, dx, dy,nnx,nx);
+
 	// populate data, here I transpose the matrix because for c++, matrix is read in row-wise order 
         for(unsigned int i = 0; i < ny; i++){  // loop for y - rows in the array
           for(unsigned int j = nnx; j < nx; j++){  // loop for x - columns in the array
-        	A3[j-nnx][i]=cellx[i][j];
-        	B3[j-nnx][i]=celly[i][j];
-		C3[j-nnx][i]=tracker[i][j];
-             }
+		A1[j-nnx][i]=tempphi[i][j];
+		B1[j-nnx][i]=temppsix[i][j];
+		C1[j-nnx][i]=temppsiy[i][j];
+		D1[j-nnx][i]=temppsixy[i][j];  
+     		}
         }
 
 	//send data to node-1
-	MPI_Send(&(A3[0][0]), ny*nnx, MPI_FLOAT, dest_rank, 0, MPI_COMM_WORLD);
-        MPI_Send(&(B3[0][0]), ny*nnx, MPI_FLOAT, dest_rank, 0, MPI_COMM_WORLD);
-	MPI_Send(&(C3[0][0]), ny*nnx, MPI_FLOAT, dest_rank, 0, MPI_COMM_WORLD);
+	MPI_Send(&(A1[0][0]), ny*nnx, MPI_FLOAT, dest_rank, 0, MPI_COMM_WORLD);
+        MPI_Send(&(B1[0][0]), ny*nnx, MPI_FLOAT, dest_rank, 0, MPI_COMM_WORLD);
+	MPI_Send(&(C1[0][0]), ny*nnx, MPI_FLOAT, dest_rank, 0, MPI_COMM_WORLD);
+        MPI_Send(&(D1[0][0]), ny*nnx, MPI_FLOAT, dest_rank, 0, MPI_COMM_WORLD);
 
     }  	    // end of node-2	
    } // end of time marching loop
