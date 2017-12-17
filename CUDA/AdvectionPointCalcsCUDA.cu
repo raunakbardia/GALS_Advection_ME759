@@ -141,7 +141,7 @@ __global__ void update_levelset_data_cuda(double *x, double *y, double *xadv, do
     double phi[4], psix[4], psiy[4], psixy[4];
     
     unsigned int cellindex_x = cellx[indexToWrite];
-    unsigned int cellindex_y = celly[indexToWrite] * nx;
+    unsigned int cellindex_y = celly[indexToWrite];
     
     unsigned int cellindex = cellindex_x + cellindex_y * nx;
     
@@ -161,11 +161,15 @@ __global__ void update_levelset_data_cuda(double *x, double *y, double *xadv, do
             double rootpsix = hermx(phi,psix,psiy,psixy,xadv[indexToWrite],yadv[indexToWrite],xo,yo,dx, dy);
             double rootpsiy = hermy(phi,psix,psiy,psixy,xadv[indexToWrite],yadv[indexToWrite],xo,yo,dx, dy);
             
-            if(strcmp("Heuns",psischeme) == 0)
-                Heuns_internal(x[index_x],y[index_y],xadv[indexToWrite],yadv[indexToWrite],rootpsix,rootpsiy,t,dt,T_period,temppsix,temppsiy,indexToWrite);
-            else if(strcmp("SuperConsistent",psischeme) == 0)
-                SuperConsistentScheme(x[index_x],y[index_y],rootpsix,rootpsiy,t,dt,T_period,backtrace_scheme,temppsix,temppsiy,indexToWrite);
-            
+            //Commenting out the options of psi scheme
+            //SuperConsistent is being used now irrespective of specification given in
+            //GALS_Advection.cu
+            //The if/else functionality may be added later
+            //if(strcmp("Heuns",psischeme) == 0)
+            //Heuns_internal(x[index_x],y[index_y],xadv[indexToWrite],yadv[indexToWrite],rootpsix,rootpsiy,t,dt,T_period,temppsix,temppsiy,indexToWrite);
+            //else if(strcmp("SuperConsistent",psischeme) == 0)
+            SuperConsistentScheme(x[index_x],y[index_y],rootpsix,rootpsiy,t,dt,T_period,backtrace_scheme,temppsix,temppsiy,indexToWrite);
+
             break;
         } // end of case 1
         

@@ -77,7 +77,11 @@
         double gradyr1x = 0.0 - dt * gradvxnode;
         double gradyr1y = 1.0 - dt * gradvynode;
         
-        if(strcmp("RK3",backtrace_scheme) == 0){
+        //Commenting out the options of backtrace scheme
+        //RK3 is being used now irrespective of specification given in
+        //GALS_Advection.cu
+        //The if/else functionality may be added later
+        //if(strcmp("RK3",backtrace_scheme) == 0){
             
             double ux = Velx(xnode, ynode, (t + 1) * dt, T_period);
             double vy = Vely(xnode, ynode, (t + 1) * dt, T_period);
@@ -114,15 +118,17 @@
             // Super consistent method -> psi(n+1) = grad(xroot,yroot) * psiroot(n)
             temppsix[indexToWrite] = (gradxrx * rootpsix + gradyrx * rootpsiy);
             temppsiy[indexToWrite] = (gradxry * rootpsix + gradyry * rootpsiy);
-        }
-        else {
-            double gradxrx = gradxr1x;
-            double gradxry = gradxr1y;
-            double gradyrx = gradyr1x;
-            double gradyry = gradyr1y;
-            
-            // Super consistent method -> psi(n+1) = grad(xroot,yroot) * psiroot(n)
-            temppsix[indexToWrite] = (gradxrx * rootpsix + gradyrx * rootpsiy);
-            temppsiy[indexToWrite] = (gradxry * rootpsix + gradyry * rootpsiy);
-        }  // end of if(strcmp("RK3",backtrace_scheme)
+            //}
+            /*
+            /else {
+            /    double gradxrx = gradxr1x;
+            /    double gradxry = gradxr1y;
+            /    double gradyrx = gradyr1x;
+            /    double gradyry = gradyr1y;
+
+            /    // Super consistent method -> psi(n+1) = grad(xroot,yroot) * psiroot(n)
+            /    temppsix[indexToWrite] = (gradxrx * rootpsix + gradyrx * rootpsiy);
+            /    temppsiy[indexToWrite] = (gradxry * rootpsix + gradyry * rootpsiy);
+            /}  // end of if(strcmp("RK3",backtrace_scheme)
+            */
     }
