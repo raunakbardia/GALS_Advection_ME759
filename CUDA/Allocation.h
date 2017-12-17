@@ -35,10 +35,6 @@ __global__ void allocate_levelset_matrices_CUDA(double *mphi, double *mpsix, dou
     mpsix[indexToWrite] = -2 * (x_t - xo)           * exp(-((x_t - xo) * (x_t - xo) + (y_t - yo) * (y_t - yo)));
     mpsiy[indexToWrite] = -2 * (y_t - yo)           * exp(-((x_t - xo) * (x_t - xo) + (y_t - yo) * (y_t - yo)));
     mpsixy[indexToWrite]=  4 * (y_t - yo)*(x_t - xo)* exp(-((x_t - xo) * (x_t - xo) + (y_t - yo) * (y_t - yo)));
-    //mphi[indexToWrite]      = initialize(x[index_x],  y[index_y]);
-    //mpsix[indexToWrite]     = derivxinit(x[index_x],  y[index_y]);
-    //mpsiy[indexToWrite]     = derivyinit(x[index_x],  y[index_y]);
-    //mpsixy[indexToWrite]    = derivxyinit(x[index_x], y[index_y]);
 }
 
     void allocate_levelset_matrices(double *mphi, double *mpsix, double *mpsiy, double *mpsixy, double *x, double *y, unsigned int nx, unsigned int ny)
