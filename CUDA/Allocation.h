@@ -10,6 +10,37 @@
 
 using namespace std;
 
+__global__ void allocate_levelset_matrices_CUDA(double *mphi, double *mpsix, double *mpsiy, double *mpsixy, double *x, double *y, unsigned int nx, unsigned int ny)
+{
+    // master matrices of phi, psix, psiy, psixy which are updated at each time step & temporary matrices which is updated constantly throughout the cell iterations
+    const double xo = .5;
+    const double yo = .75;
+    const double rcircle = .15;
+
+    unsigned int bx = blockIdx.x;
+    unsigned int by = blockIdx.y;
+
+    unsigned int tx = threadIdx.x;
+    unsigned int ty = threadIdx.y;
+
+    unsigned int index_x = bx * blockDim.x + tx;
+    unsigned int index_y = by * blockDim.x + ty;
+
+    unsigned int indexToWrite = index_y * nx + index_x;
+
+    double x_t = x[index_x];
+    double y_t = y[index_y];
+
+    mphi[indexToWrite]  = - exp(-rcircle * rcircle) + exp(-((x_t - xo) * (x_t - xo) + (y_t - yo) * (y_t - yo)));
+    mpsix[indexToWrite] = -2 * (x_t - xo)           * exp(-((x_t - xo) * (x_t - xo) + (y_t - yo) * (y_t - yo)));
+    mpsiy[indexToWrite] = -2 * (y_t - yo)           * exp(-((x_t - xo) * (x_t - xo) + (y_t - yo) * (y_t - yo)));
+    mpsixy[indexToWrite]=  4 * (y_t - yo)*(x_t - xo)* exp(-((x_t - xo) * (x_t - xo) + (y_t - yo) * (y_t - yo)));
+    //mphi[indexToWrite]      = initialize(x[index_x],  y[index_y]);
+    //mpsix[indexToWrite]     = derivxinit(x[index_x],  y[index_y]);
+    //mpsiy[indexToWrite]     = derivyinit(x[index_x],  y[index_y]);
+    //mpsixy[indexToWrite]    = derivxyinit(x[index_x], y[index_y]);
+}
+
     void allocate_levelset_matrices(double *mphi, double *mpsix, double *mpsiy, double *mpsixy, double *x, double *y, unsigned int nx, unsigned int ny)
     {
         // master matrices of phi, psix, psiy, psixy which are updated at each time step & temporary matrices which is updated constantly throughout the cell iterations
