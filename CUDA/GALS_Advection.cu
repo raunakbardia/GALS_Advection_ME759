@@ -134,58 +134,58 @@ int main(){
     // If only the initial and final profiles are needed
     for(unsigned int t = 0; t < n; t++){
 
-    double *dxadv, *dyadv;
-    // allocate device memory for x and y
-    cudaMalloc((void**)&dxadv,gridmemory);	// Allocating GPU memory for the x-node values
-    cudaMalloc((void**)&dyadv,gridmemory);	// Allocating GPU memory for the y-node values
+        double *dxadv, *dyadv;
+        // allocate device memory for x and y
+        cudaMalloc((void**)&dxadv,gridmemory);	// Allocating GPU memory for the x-node values
+        cudaMalloc((void**)&dyadv,gridmemory);	// Allocating GPU memory for the y-node values
 
-    unsigned int *dcellx, *dcelly,*dtracker;
-    // allocate device memory for integer grids
-    cudaMalloc((void**)&dcellx,gridmemoryint);	// Allocating GPU memory for the x-node values
-    cudaMalloc((void**)&dcelly,gridmemoryint);	// Allocating GPU memory for the y-node values
-    cudaMalloc((void**)&dtracker,gridmemoryint);	// Allocating GPU memory for the y-node values
+        unsigned int *dcellx, *dcelly,*dtracker;
+        // allocate device memory for integer grids
+        cudaMalloc((void**)&dcellx,gridmemoryint);	// Allocating GPU memory for the x-node values
+        cudaMalloc((void**)&dcelly,gridmemoryint);	// Allocating GPU memory for the y-node values
+        cudaMalloc((void**)&dtracker,gridmemoryint);	// Allocating GPU memory for the y-node values
 
-    // Find the point from which advection occurs at this time step
-    advection_point_cuda<<<dimGrid,dimBlock>>>(devicex,devicey,dxadv,dyadv,nx,t,dt,T_period,TileSize);
+        // Find the point from which advection occurs at this time step
+        advection_point_cuda<<<dimGrid,dimBlock>>>(devicex,devicey,dxadv,dyadv,nx,t,dt,T_period,TileSize);
 
-    // Find the cell in which those advection points lie
-    find_advection_point_location_cuda<<<dimGrid,dimBlock>>>(devicex,devicey,dxadv,dyadv,nx,ny,dcellx,dcelly,dtracker,xlim1,xlim2,ylim1,ylim2,TileSize);
+        // Find the cell in which those advection points lie
+        find_advection_point_location_cuda<<<dimGrid,dimBlock>>>(devicex,devicey,dxadv,dyadv,nx,ny,dcellx,dcelly,dtracker,xlim1,xlim2,ylim1,ylim2,TileSize);
 
-    // Update the level set values
-    update_levelset_data_cuda<<<dimGrid,dimBlock>>>(devicex, devicey, dxadv, dyadv, dcellx, dcelly, dtracker, t, dt, dphi, dpsix, dpsiy, dpsixy, masterdphi, masterdpsix, masterdpsiy,psischeme,backtrace_scheme,T_period,nx,ny,TileSize);
+        // Update the level set values
+        update_levelset_data_cuda<<<dimGrid,dimBlock>>>(devicex, devicey, dxadv, dyadv, dcellx, dcelly, dtracker, t, dt, dphi, dpsix, dpsiy, dpsixy, masterdphi, masterdpsix, masterdpsiy,psischeme,backtrace_scheme,T_period,nx,ny,TileSize);
 
-    devicetodevicecopy<<<dimGrid,dimBlock>>>(dphi,dpsix,dpsiy,masterdphi,masterdpsix,masterdpsiy,nx,TileSize);
+        devicetodevicecopy<<<dimGrid,dimBlock>>>(dphi,dpsix,dpsiy,masterdphi,masterdpsix,masterdpsiy,nx,TileSize);
 
-    // Update the mixed derivatives now for the remaining grid points
-    update_mixed_derivatives<<<dimGrid,dimBlock>>>(dpsix, dpsiy, dpsixy, nx, ny, dx, dy,TileSize);
+        // Update the mixed derivatives now for the remaining grid points
+        update_mixed_derivatives<<<dimGrid,dimBlock>>>(dpsix, dpsiy, dpsixy, nx, ny, dx, dy,TileSize);
 
-    cudaDeviceSynchronize();
+        cudaDeviceSynchronize();
 
-    //---------------------------------------------------------------------------------------------------------
-    // Feeding phi, psix, psiy and psixy values in their respective files
-    if((t+1) % printstep == 0)
-    {
-        cudaMemcpy(mphi, masterdphi, gridmemory, cudaMemcpyDeviceToHost);       // Writing back to host memory
-        cudaMemcpy(mpsix, masterdpsix, gridmemory, cudaMemcpyDeviceToHost);       // Writing back to host memory
-        cudaMemcpy(mpsiy, masterdpsiy, gridmemoryint, cudaMemcpyDeviceToHost);      // Writing back to host memory
-        //cudaMemcpy(mpsixy, masterdpsixy, gridmemoryint, cudaMemcpyDeviceToHost);  // Writing back to host memory
-        fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,(t+1)*dt,T_period);
-    }
-    cout<< t+1;
-    cout<< " Time Step Completed" <<'\n';
+        //---------------------------------------------------------------------------------------------------------
+        // Feeding phi, psix, psiy and psixy values in their respective files
+        if((t+1) % printstep == 0)
+        {
+            cudaMemcpy(mphi, masterdphi, gridmemory, cudaMemcpyDeviceToHost);       // Writing back to host memory
+            cudaMemcpy(mpsix, masterdpsix, gridmemory, cudaMemcpyDeviceToHost);       // Writing back to host memory
+            cudaMemcpy(mpsiy, masterdpsiy, gridmemoryint, cudaMemcpyDeviceToHost);      // Writing back to host memory
+            //cudaMemcpy(mpsixy, masterdpsixy, gridmemoryint, cudaMemcpyDeviceToHost);  // Writing back to host memory
+            fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,(t+1)*dt,T_period);
+        }
+        cout<< t+1;
+        cout<< " Time Step Completed" <<'\n';
 
-    //---------------------------------------------------------------------------------------------------------
-    //xadv.clear();
-    //yadv.clear();
-    //tracker.clear();
-    //cellx.clear();
-    //celly.clear();
-    cudaFree(dxadv);
-    cudaFree(dyadv);
-    cudaFree(dcellx);
-    cudaFree(dcelly);
-    cudaFree(dtracker);
+        //---------------------------------------------------------------------------------------------------------
+        //xadv.clear();
+        //yadv.clear();
+        //tracker.clear();
+        //cellx.clear();
+        //celly.clear();
+        cudaFree(dxadv);
+        cudaFree(dyadv);
+        cudaFree(dcellx);
+        cudaFree(dcelly);
+        cudaFree(dtracker);
     }  // end of time marching loop
-     //*/
+    //*/
     return 0;
 }
