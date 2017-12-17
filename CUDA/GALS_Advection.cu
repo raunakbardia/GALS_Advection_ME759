@@ -72,6 +72,9 @@ int main(){
     if(option != 1)
         printstep = n;
 
+    dim3 dimBlock(TileSize, TileSize);
+    dim3 dimGrid(nx/dimBlock.x, ny/dimBlock.y);
+
     // Node Locations
     double dx = (xlim2 - xlim1)/(nx - 1);
     double dy = (ylim2 - ylim1)/(ny - 1);
@@ -94,25 +97,21 @@ int main(){
     // Initializing at t = 0
     allocate_levelset_matrices(mphi,mpsix,mpsiy,mpsixy,x,y,nx,ny); //Initializing level set matrices
 
-    double *masterdphi, *masterdpsix, *masterdpsiy;
+    double *masterdphi, *masterdpsix, *masterdpsiy, *masterdpsixy;
 
     // allocate device memory for integer grids
     cudaMalloc((void**)&masterdphi,gridmemory);	// Allocating GPU memory for the x-node values
     cudaMalloc((void**)&masterdpsix,gridmemory);	// Allocating GPU memory for the y-node values
     cudaMalloc((void**)&masterdpsiy,gridmemory);	// Allocating GPU memory for the y-node values
+    cudaMalloc((void**)&masterdpsixy,gridmemory);	// Allocating GPU memory for the y-node values
     double *dphi, *dpsix, *dpsiy, *dpsixy;
     // allocate device memory for integer grids
     cudaMalloc((void**)&dphi,gridmemory);	// Allocating GPU memory for the x-node values
     cudaMalloc((void**)&dpsix,gridmemory);	// Allocating GPU memory for the y-node values
     cudaMalloc((void**)&dpsiy,gridmemory);	// Allocating GPU memory for the y-node values
     cudaMalloc((void**)&dpsixy,gridmemory);	// Allocating GPU memory for the y-node values
-    cudaMemcpy(masterdphi, mphi, gridmemory, cudaMemcpyHostToDevice);	// Writing to device memory
-    cudaMemcpy(masterdpsix, mpsix, gridmemory, cudaMemcpyHostToDevice);	// Writing to device memory
-    cudaMemcpy(masterdpsiy, mpsiy, gridmemory, cudaMemcpyHostToDevice);	// Writing to device memory
-    cudaMemcpy(dphi, mphi, gridmemory, cudaMemcpyHostToDevice);	// Writing to device memory
-    cudaMemcpy(dpsix, mpsix, gridmemory, cudaMemcpyHostToDevice);	// Writing to device memory
-    cudaMemcpy(dpsiy, mpsiy, gridmemory, cudaMemcpyHostToDevice);	// Writing to device memory
-    cudaMemcpy(dpsixy, mpsixy, gridmemory, cudaMemcpyHostToDevice);	// Writing to device memory
+    allocate_levelset_matrices_CUDA<<<dimGrid, dimBlock>>>(masterdphi, masterdpsix, masterdpsiy, masterdpsixy, devicex, devicey, nx, ny); //Initializing level set matrices
+    allocate_levelset_matrices_CUDA<<<dimGrid, dimBlock>>>(dphi, dpsix, dpsiy, dpsixy, devicex, devicey, nx, ny); //Initializing level set matrices
 
     // Removing existing files with these names if any
     remove("phi.txt");
@@ -144,8 +143,6 @@ int main(){
     cudaMalloc((void**)&dcelly,gridmemoryint);	// Allocating GPU memory for the y-node values
     cudaMalloc((void**)&dtracker,gridmemoryint);	// Allocating GPU memory for the y-node values
 
-    dim3 dimBlock(TileSize, TileSize);
-    dim3 dimGrid(nx/dimBlock.x, ny/dimBlock.y);
 
     // Find the point from which advection occurs at this time step
     advection_point_cuda<<<dimGrid,dimBlock>>>(devicex,devicey,dxadv,dyadv,nx,t,dt,T_period,TileSize);
