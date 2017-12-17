@@ -22,7 +22,9 @@ namespace galsfunctions
 
     //  unsigned int nx = x.size();
         unsigned int ny = y.size();
-
+	# pragma omp parallel
+	{
+        # pragma omp for schedule(static) collapse(2)  
         for(unsigned int i = 0; i < ny; i++){  // loop for y - rows in the array
             for(unsigned int j = ny_Node_min; j < ny_Node_max; j++){  // loop for x - columns in the array
 
@@ -52,7 +54,7 @@ namespace galsfunctions
 	     }
 	 }
      }
-
+	}
 
     void advection_point(vectorarray& x, vectorarray& y, gridarray& xadv, gridarray &yadv, unsigned int t,
                          double dt, double T_period, char backtrace_scheme[])
@@ -169,7 +171,9 @@ namespace galsfunctions
     {
         unsigned int nx = x.size();
         unsigned int ny = y.size();
-
+	# pragma omp parallel
+        {
+        # pragma omp for schedule(static) collapse(2)   
         for(unsigned int i = 0; i < ny; i++){
             for(unsigned int j = ny_Node_min; j < ny_Node_max; j++){
                 std::vector<double>::iterator locate;
@@ -231,7 +235,7 @@ namespace galsfunctions
             }
         }
     }
-
+	}
 
     void update_levelset_data_mpi(vectorarray &x, vectorarray &y, gridarray &xadv, gridarray &yadv,
             intgridarray &cellx, intgridarray &celly, intgridarray &tracker, unsigned int t, double dt,
@@ -312,6 +316,9 @@ namespace galsfunctions
         double dx = x[2] - x[1];
         unsigned int ny = y.size();
         double dy = y[2] - y[1];
+        # pragma omp parallel
+        {
+        # pragma omp for schedule(static) collapse(2)    
 
         for(unsigned int i = 0; i < ny; i++){  // loop for y - rows in the array
             for(unsigned int j = 0; j < nx; j++){  // loop for x - columns in the array
@@ -369,13 +376,17 @@ namespace galsfunctions
             }
         }
     }
+	}
+
 
 void update_mixed_derivatives(gridarray &temppsix, gridarray &temppsiy, gridarray &temppsixy,
 				unsigned int nx, unsigned int ny, double dx, double dy)
 {
 double dxy1, dxy2;
 double d1, d2, d3, d4;  //Temporary variable to compute mixed derivatives
-
+# pragma omp parallel
+{
+# pragma omp for schedule(static) collapse(2) 
 for(unsigned int k = 0; k < ny; k++){
     for(unsigned int l = 0; l < nx; l++){
         if ((k == 0 || k == ny - 1) && (l != 0 && l != nx - 1)){
@@ -425,6 +436,7 @@ for(unsigned int k = 0; k < ny; k++){
                     temppsixy[k][l] = (dxy1 + dxy2)/2.0;
                 }
     }
+}
 }
 }  // end of function
 

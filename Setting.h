@@ -12,7 +12,7 @@ double ylim2 = 1.0;                     //Upper limit on y-axis
 unsigned int ny = 128;                        //Number of nodes INCLUDING THE EXTREME VALUES
 
 double dt = (1/128.0);                     //Length of time step
-double Tfinal = 1.0;                    //Total time period for the simulation
+double Tfinal = 3.0;                    //Total time period for the simulation
 double T_period = 3.0;                  //Period of the velocity field
 
 unsigned int option = 1;                         //Option - if you need animation initialize at 1 else initialize at 2

@@ -22,11 +22,11 @@ debug : LDFLAGS := -fsanitize=address
 debug : ARCH :=
 debug : $(EXEC)
 
-all : gals_advection
+all : GALS_Advection
 
-gals_advection: GALS_Advection_MPI.cpp
+GALS_Advection: GALS_Advection_MPI_OpenMP.cpp
 	@ echo Compiling $<...
-	mpicxx $(CXXXSTD) GALS_Advection_MPI.cpp -o GALS_Advection $(WFLAGS) $(OPT) $(LDFLAGS) $(CFLAGS) $(CXXSTD) #-pg -fprofile-arcs -ftest-coverage
+	mpicxx $(CXXXSTD) GALS_Advection_MPI_OpenMP.cpp -o GALS_Advection $(WFLAGS) $(OPT) $(LDFLAGS) $(CFLAGS) $(CXXSTD) #-pg -fprofile-arcs -ftest-coverage
 
 # TODO: add targets for building executables
 

@@ -10,7 +10,7 @@
 
 ##./GALS_Advection 
 
-mpiexec -np 2 ./GALS_Advection
+mpiexec -np 2 ./GALS_Advection 4 
 
 mv job_out ggg.out
 mv job_err ggg.err
