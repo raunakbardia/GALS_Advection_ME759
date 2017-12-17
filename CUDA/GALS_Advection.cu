@@ -94,8 +94,6 @@ int main(){
     double* mpsix = (double*) malloc(gridmemory);
     double* mpsiy = (double*) malloc(gridmemory);
     double* mpsixy = (double*) malloc(gridmemory);
-    // Initializing at t = 0
-    allocate_levelset_matrices(mphi,mpsix,mpsiy,mpsixy,x,y,nx,ny); //Initializing level set matrices
 
     double *masterdphi, *masterdpsix, *masterdpsiy, *masterdpsixy;
 
@@ -110,8 +108,12 @@ int main(){
     cudaMalloc((void**)&dpsix,gridmemory);	// Allocating GPU memory for the y-node values
     cudaMalloc((void**)&dpsiy,gridmemory);	// Allocating GPU memory for the y-node values
     cudaMalloc((void**)&dpsixy,gridmemory);	// Allocating GPU memory for the y-node values
+
+    // Initializing at t = 0
     allocate_levelset_matrices_CUDA<<<dimGrid, dimBlock>>>(masterdphi, masterdpsix, masterdpsiy, masterdpsixy, devicex, devicey, nx, ny); //Initializing level set matrices
     allocate_levelset_matrices_CUDA<<<dimGrid, dimBlock>>>(dphi, dpsix, dpsiy, dpsixy, devicex, devicey, nx, ny); //Initializing level set matrices
+    // Initializing at t = 0
+    allocate_levelset_matrices(mphi,mpsix,mpsiy,mpsixy,x,y,nx,ny); //Initializing level set matrices
 
     // Removing existing files with these names if any
     remove("phi.txt");
@@ -142,7 +144,6 @@ int main(){
     cudaMalloc((void**)&dcellx,gridmemoryint);	// Allocating GPU memory for the x-node values
     cudaMalloc((void**)&dcelly,gridmemoryint);	// Allocating GPU memory for the y-node values
     cudaMalloc((void**)&dtracker,gridmemoryint);	// Allocating GPU memory for the y-node values
-
 
     // Find the point from which advection occurs at this time step
     advection_point_cuda<<<dimGrid,dimBlock>>>(devicex,devicey,dxadv,dyadv,nx,t,dt,T_period,TileSize);
