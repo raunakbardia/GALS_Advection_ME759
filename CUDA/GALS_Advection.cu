@@ -54,7 +54,7 @@ int main(){
     double ylim2 = 1.0;                     //Upper limit on y-axis
     unsigned int ny = 127 + 1;                        //Number of nodes INCLUDING THE EXTREME VALUES
     
-    double dt = 0.5 * 1.0/128.0;                     //Length of time step
+    double dt = 0.5 * 1.0/512.0;                     //Length of time step
     double Tfinal = 8.0;                    //Total time period for the simulation
     unsigned int option = 1;                         //Option - if you need animation initialize at 1 else initialize at 2
     unsigned int printstep = 256;                      //How frequently do you want to store the images (every nth time step)
@@ -117,7 +117,7 @@ int main(){
     allocate_levelset_matrices(mphi,mpsix,mpsiy,mpsixy,x,y,nx,ny); //Initializing level set matrices
     
     // Removing existing files with these names if any
-    remove("phi.txt");
+ /*   remove("phi.txt");
     remove("psix.txt");
     remove("psiy.txt");
     remove("psixy.txt");
@@ -129,7 +129,7 @@ int main(){
     details.open("details.txt", ios::out | ios::app);
     details<< nx << "," << ny << "," << std::fixed << std::setprecision(10) << dx << "," << dy << "," << xlim1 << "," << xlim2 << "," << ylim1 << "," << ylim2 << "," << n << "," << dt << "," << printstep;
     details.close();
-    
+   */ 
     ///*
     // TIME STEPPING LOOP
     // If only the initial and final profiles are needed
@@ -198,7 +198,7 @@ int main(){
         
         //---------------------------------------------------------------------------------------------------------
         // Feeding phi, psix, psiy and psixy values in their respective files
-        if((t+1) % printstep == 0)
+/*        if((t+1) % printstep == 0)
         {
             cudaEventRecord(startEvent,0);
             cudaMemcpy(mphi, masterdphi, gridmemory, cudaMemcpyDeviceToHost);       // Writing back to host memory
@@ -213,7 +213,7 @@ int main(){
         }
         cout<< t+1;
         cout<< " Time Step Completed" <<'\n';
-        
+        */
         //---------------------------------------------------------------------------------------------------------
         //xadv.clear();
         //yadv.clear();

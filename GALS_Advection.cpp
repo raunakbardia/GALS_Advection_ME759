@@ -50,16 +50,16 @@ int main(){
     /* UPDATE ALL THE FOLLOWING VALUES */
     double xlim1 = 0.0;                       //Lower limit on x-axis
     double xlim2 = 1.0;                      //Upper limit on x-axis
-    unsigned int nx = 127 + 1;                         //Number of nodes in x-direction INCLUDING THE EXTREME VALUES
+    unsigned int nx = 64 + 1;                         //Number of nodes in x-direction INCLUDING THE EXTREME VALUES
     
     double ylim1 = 0.0;                       //Lower limit on y-axis
     double ylim2 = 1.0;                     //Upper limit on y-axis
-    unsigned int ny = 127 + 1;                        //Number of nodes INCLUDING THE EXTREME VALUES
+    unsigned int ny = 64 + 1;                        //Number of nodes INCLUDING THE EXTREME VALUES
     
-    double dt = 0.5 * 1.0/128.0;                     //Length of time step
+    double dt = 0.5 * 1.0/512.0;                     //Length of time step
     double Tfinal = 8.0;                    //Total time period for the simulation
     unsigned int option = 2;                         //Option - if you need animation initialize at 1 else initialize at 2
-    unsigned int printstep = 8;                      //How frequently do you want to store the images (every nth time step)
+    unsigned int printstep = 256;                      //How frequently do you want to store the images (every nth time step)
     char psischeme[] = "SuperConsistent";   //'SuperConsistent' or 'Heuns'
     char backtrace_scheme[] = "RK3" ;      //'Euler' or 'RK3'
     double T_period = 8.0;                  //Period of the velocity field
@@ -85,7 +85,7 @@ int main(){
     
     
     // Removing existing files with these names if any
-    remove("phi.txt");
+/*    remove("phi.txt");
     remove("psix.txt");
     remove("psiy.txt");
     remove("psixy.txt");
@@ -93,7 +93,12 @@ int main(){
     remove("Velocity_x.txt");
     remove("Velocity_y.txt");
     fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,0.0,T_period);
+    ofstream details;
+    details.open("details.txt", ios::out | ios::app);
+    details<< nx << "," << ny << "," << std::fixed << std::setprecision(10) << dx << "," << dy << "," << xlim1 << "," << xlim2 << "," << ylim1 << "," << ylim2 << "," << n << "," << dt << "," << printstep;
+    details.close();
     
+  */  
     /*
      * Let the following represent one cell
      *
@@ -109,11 +114,6 @@ int main(){
      * Hence, tempindexes take care of these changes
      *
      */
-    
-    ofstream details;
-    details.open("details.txt", ios::out | ios::app);
-    details<< nx << "," << ny << "," << std::fixed << std::setprecision(10) << dx << "," << dy << "," << xlim1 << "," << xlim2 << "," << ylim1 << "," << ylim2 << "," << n << "," << dt << "," << printstep;
-    details.close();
     
     // TIME STEPPING LOOP
     // If only the initial and final profiles are needed
@@ -168,12 +168,12 @@ int main(){
         
         //---------------------------------------------------------------------------------------------------------
         // Feeding phi, psix, psiy and psixy values in their respective files
-        if((t+1) % printstep == 0)
+/*        if((t+1) % printstep == 0)
             fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,(t+1)*dt,T_period);
         
         cout<< t+1;
         cout<< " Time Step Completed" <<'\n';
-        
+*/        
         //---------------------------------------------------------------------------------------------------------
         xadv.clear();
         yadv.clear();
