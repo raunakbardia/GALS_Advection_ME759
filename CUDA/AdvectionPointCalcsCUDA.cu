@@ -169,7 +169,7 @@ __global__ void update_levelset_data_cuda(double *x, double *y, double *xadv, do
             //Heuns_internal(x[index_x],y[index_y],xadv[indexToWrite],yadv[indexToWrite],rootpsix,rootpsiy,t,dt,T_period,temppsix,temppsiy,indexToWrite);
             //else if(strcmp("SuperConsistent",psischeme) == 0)
             SuperConsistentScheme(x[index_x],y[index_y],rootpsix,rootpsiy,t,dt,T_period,backtrace_scheme,temppsix,temppsiy,indexToWrite);
-
+            
             break;
         } // end of case 1
         
@@ -211,7 +211,7 @@ __global__ void update_mixed_derivatives(double *temppsix, double *temppsiy, dou
     unsigned int index_y = by * TileSize + ty;
     
     unsigned int indexToWrite = index_y * nx + index_x;
- 
+    
     if ((index_y == 0 || index_y == ny - 1) && (index_x != 0 && index_x != nx - 1))
         temppsixy[indexToWrite] = (temppsiy[indexToWrite+1] - temppsiy[indexToWrite-1])/(2 * dx);
     else

@@ -10,7 +10,7 @@
 #define _HermiteCUDA_h
 
 __global__ void devicetodevicecopy(double *dphi, double *dpsix, double *dpsiy, double *mphi, double *mpsix, double *mpsiy,
-					unsigned int nx, unsigned int TileSize)
+        unsigned int nx, unsigned int TileSize)
 {
     unsigned int bx = blockIdx.x;
     unsigned int by = blockIdx.y;
@@ -22,10 +22,10 @@ __global__ void devicetodevicecopy(double *dphi, double *dpsix, double *dpsiy, d
     unsigned int index_y = by * TileSize + ty;
     
     unsigned int indexToWrite = index_y * nx + index_x;
-   
-    mphi[indexToWrite] = dphi[indexToWrite]; 
-    mpsix[indexToWrite] = dpsix[indexToWrite]; 
-    mpsiy[indexToWrite] = dpsiy[indexToWrite]; 
+    
+    mphi[indexToWrite] = dphi[indexToWrite];
+    mpsix[indexToWrite] = dpsix[indexToWrite];
+    mpsiy[indexToWrite] = dpsiy[indexToWrite];
 }
 
 __device__ double basepolynomial(double x, double y, int alphax, int alphay, int vx, int vy, double dx, double dy, double xo, double yo){

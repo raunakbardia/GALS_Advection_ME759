@@ -18,7 +18,7 @@ namespace galsfunctions
         mpsix.resize(ny,vectorarray(nx,0.0));
         mpsiy.resize(ny,vectorarray(nx,0.0));
         mpsixy.resize(ny,vectorarray(nx,0.0));
-
+        
         for(unsigned int i = 0; i < ny; i++){
             for(unsigned int j = 0; j < nx; j++){
                 mphi[i][j] = initialize(x[j], y[i]);
@@ -28,21 +28,21 @@ namespace galsfunctions
             }
         }
     }
-
+    
     void allocate_levelset_velocity(gridarray& u, gridarray& v, unsigned int nx, unsigned int ny, vectorarray& x, vectorarray& y, double time, double T_period)
     {
         u.resize(ny,vectorarray(nx,0.0));
         v.resize(ny,vectorarray(nx,0.0));
-
+        
         for(unsigned int i = 0; i < ny; i++){
             for(unsigned int j = 0; j < nx; j++){
-
+                
                 u[i][j] = Velx(x[j],y[i],time, T_period);
                 v[i][j] = Vely(x[j],y[i],time, T_period);
             }
         }
     }
-
+    
     void gridnodes(vectorarray& x, vectorarray& y, double xlim1, double ylim1, double dx, double dy, unsigned int nx, unsigned int ny)
     {
         // Defining node points
@@ -54,9 +54,9 @@ namespace galsfunctions
             y[i] = ylim1 + dy * i;
         // Node point definition ends
     }
-
+    
     void fileprint(gridarray& mphi, gridarray& mpsix, gridarray& mpsiy, gridarray& mpsixy, unsigned int nx, unsigned int ny,
-                   vectorarray& x, vectorarray& y, double time, double T_period)
+            vectorarray& x, vectorarray& y, double time, double T_period)
     {
         gridarray u, v;
         allocate_levelset_velocity(u,v,nx,ny,x,y,time,T_period);
@@ -68,9 +68,9 @@ namespace galsfunctions
         psixyfile.open("psixy.txt", ios::out | ios::app);
         ufile.open("Velocity_x.txt", ios::out | ios::app);
         vfile.open("Velocity_y.txt",ios::out | ios::app);
-
+        
         for(unsigned int i = 0; i < ny; i++){
-
+            
             // Initializing the first element of each row separately to avoid trailing commas in the file
             phifile << std::fixed << std::setprecision(10) << mphi[i][0];
             psixfile << std::fixed << std::setprecision(10) << mpsix[i][0];
@@ -78,7 +78,7 @@ namespace galsfunctions
             psixyfile << std::fixed << std::setprecision(10) << mpsixy[i][0];
             ufile << std::fixed << std::setprecision(10) << u[i][0];
             vfile << std::fixed << std::setprecision(10) << v[i][0];
-
+            
             for(unsigned int j = 1; j < nx; j++){
                 phifile << "," << std::fixed << std::setprecision(10) << mphi[i][j];
                 psixfile << "," << std::fixed << std::setprecision(10) << mpsix[i][j];
@@ -94,19 +94,19 @@ namespace galsfunctions
             ufile << '\n';
             vfile << '\n';
         }
-
+        
         phifile << '\n';           psixfile << '\n';             psiyfile << '\n';            psixyfile << '\n';             ufile << '\n';         vfile << '\n';
         phifile.close();       psixfile.close();         psiyfile.close();          psixyfile.close();         ufile.close();        vfile.close();
     }
-
     
-    // create contiguous-memory 2D matrices, A[i][j], used for MPI 
+    
+    // create contiguous-memory 2D matrices, A[i][j], used for MPI
     double **alloc_2d_int(unsigned int rows, unsigned int cols) {
-    double *data = (double *)malloc(rows*cols*sizeof(double));
-    double **array= (double **)malloc(rows*sizeof(double*));
-    for (unsigned int i=0; i<rows; i++)
-        array[i] = &(data[cols*i]);
-    return array;
+        double *data = (double *)malloc(rows*cols*sizeof(double));
+        double **array= (double **)malloc(rows*sizeof(double*));
+        for (unsigned int i=0; i<rows; i++)
+            array[i] = &(data[cols*i]);
+        return array;
     }
 }
 #endif

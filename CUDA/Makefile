@@ -25,7 +25,7 @@ all : gals_advection_cuda
 
 gals_advection_cuda: GALS_Advection.cu
 	@ echo Compiling $<...
-	module load cuda;nvcc -g -G GALS_Advection.cu -o GALS_Advection_Cuda -ccbin $(BIN)
+	module load cuda;nvcc GALS_Advection.cu -o GALS_Advection_Cuda -ccbin $(BIN)
 
 # TODO: add targets for building executables
 .PHONY: clean
