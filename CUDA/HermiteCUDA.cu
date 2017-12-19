@@ -2,7 +2,7 @@
 //  HermiteCUDA.h
 //
 //
-//  Created by Raunak Bardia on 10/6/14.
+//  Created by Raunak Bardia on 12/10/17.
 //
 //
 

@@ -7,7 +7,7 @@
 #SBATCH -o job_out
 #SBATCH --gres=gpu:1 # not needed for OpenMP
 
-cd $SLURM_SUBMIT_DIR
+#cd $SLURM_SUBMIT_DIR
 ./GALS_Advection_Cuda
 #cuda-memcheck ./GALS_Advection_Cuda
 #nvprof ./GALS_Advection_Cuda

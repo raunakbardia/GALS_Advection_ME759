@@ -1,0 +1,7 @@
+Time taken for calculation of advection points = 362.417
+Time taken for finding location of advection points in the grid = 467.554
+Time taken for hermite Update = 11435.6
+Time taken for copying the matrix = 105.149
+Time taken for calculation of mixed derivatives = 130.783
+Time taken for transfer of level set data = 0
+Total Duration of the Time Loop = 16784.4

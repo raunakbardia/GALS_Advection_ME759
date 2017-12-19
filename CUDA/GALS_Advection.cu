@@ -1,7 +1,7 @@
 //
 //  GALS - Before compiling the program, update the section of this program that is in the beginning of main and update all the functions in Initializer.h
 //
-//  Created by Raunak Bardia on 10/22/14.
+//  Created by Raunak Bardia on 12/10/17.
 //
 // DISCLAIMER:
 // Use the indexes carefully
@@ -48,20 +48,20 @@ int main(){
     /* UPDATE ALL THE FOLLOWING VALUES */
     double xlim1 = 0.0;                       //Lower limit on x-axis
     double xlim2 = 1.0;                      //Upper limit on x-axis
-    unsigned int nx = 127 + 1;                         //Number of nodes in x-direction INCLUDING THE EXTREME VALUES
+    unsigned int nx = 32;                         //Number of nodes in x-direction INCLUDING THE EXTREME VALUES
     
     double ylim1 = 0.0;                       //Lower limit on y-axis
     double ylim2 = 1.0;                     //Upper limit on y-axis
-    unsigned int ny = 127 + 1;                        //Number of nodes INCLUDING THE EXTREME VALUES
+    unsigned int ny = 32;                        //Number of nodes INCLUDING THE EXTREME VALUES
     
     double dt = 0.5 * 1.0/512.0;                     //Length of time step
     double Tfinal = 8.0;                    //Total time period for the simulation
-    unsigned int option = 1;                         //Option - if you need animation initialize at 1 else initialize at 2
+    unsigned int option = 2;                         //Option - if you need animation initialize at 1 else initialize at 2
     unsigned int printstep = 256;                      //How frequently do you want to store the images (every nth time step)
     char psischeme[] = "SuperConsistent";   //'SuperConsistent' or 'Heuns'
     char backtrace_scheme[] = "RK3" ;      //'Euler' or 'RK3'
     double T_period = 8.0;                  //Period of the velocity field
-    unsigned int TileSize = 32;
+    unsigned int TileSize = 8;
     
     //---------------------------------------------------------------------------------------------------------
     //MAKE SURE THAT YOU HAVE ENOUGH MEMORY SPACE IF YOU ARE STORING A LOT OF TIME STEP VALUES BECAUSE IT STORES ACROSS GRID POINTS FOR EACH PRINTSTEP
@@ -137,7 +137,7 @@ int main(){
     cudaEvent_t startEvent, stopEvent;
     cudaEventCreate(&startEvent);
     cudaEventCreate(&stopEvent);
-    float t_calcpts=0.0,t_findpts=0.0,t_update=0.0,t_mixed=0.0,t_copy=0.0,t_transfer=0.0,tempt=0.0;
+    float t_calcpts=0.0,t_findpts=0.0,t_update=0.0,t_mixed=0.0,t_copy=0.0,t_transfer=0.0;
     auto tbegin = chrono::high_resolution_clock::now();
     
 //
@@ -153,7 +153,8 @@ int main(){
         cudaMalloc((void**)&dcellx,gridmemoryint);	// Allocating GPU memory for the x-node values
         cudaMalloc((void**)&dcelly,gridmemoryint);	// Allocating GPU memory for the y-node values
         cudaMalloc((void**)&dtracker,gridmemoryint);	// Allocating GPU memory for the y-node values
-        
+       
+	float tempt = 0.0; 
         // Find the point from which advection occurs at this time step
         cudaEventRecord(startEvent,0);
         advection_point_cuda<<<dimGrid,dimBlock>>>(devicex,devicey,dxadv,dyadv,nx,t,dt,T_period,TileSize);
@@ -161,7 +162,8 @@ int main(){
         cudaEventSynchronize(stopEvent);
         cudaEventElapsedTime(&tempt, startEvent, stopEvent);
         t_calcpts += tempt;
-        
+       
+	tempt = 0.0; 
         // Find the cell in which those advection points lie
         cudaEventRecord(startEvent,0);
         find_advection_point_location_cuda<<<dimGrid,dimBlock>>>(devicex,devicey,dxadv,dyadv,nx,ny,dcellx,dcelly,dtracker,xlim1,xlim2,ylim1,ylim2,TileSize);
@@ -170,6 +172,7 @@ int main(){
         cudaEventElapsedTime(&tempt, startEvent, stopEvent);
         t_findpts += tempt;
         
+	tempt = 0.0; 
         // Update the level set values
         cudaEventRecord(startEvent,0);
         update_levelset_data_cuda<<<dimGrid,dimBlock>>>(devicex, devicey, dxadv, dyadv, dcellx, dcelly, dtracker, t, dt, dphi, dpsix, dpsiy, dpsixy, masterdphi, masterdpsix, masterdpsiy,psischeme,backtrace_scheme,T_period,nx,ny,TileSize);
@@ -178,6 +181,7 @@ int main(){
         cudaEventElapsedTime(&tempt, startEvent, stopEvent);
         t_update += tempt;
         
+	tempt = 0.0; 
         // Create another copy to preserve data which gets modified on the fly in next loop
         cudaEventRecord(startEvent,0);
         devicetodevicecopy<<<dimGrid,dimBlock>>>(dphi,dpsix,dpsiy,masterdphi,masterdpsix,masterdpsiy,nx,TileSize);
@@ -186,6 +190,7 @@ int main(){
         cudaEventElapsedTime(&tempt, startEvent, stopEvent);
         t_copy += tempt;
         
+	tempt = 0.0; 
         // Update the mixed derivatives now for the remaining grid points
         cudaEventRecord(startEvent,0);
         update_mixed_derivatives<<<dimGrid,dimBlock>>>(dpsix, dpsiy, dpsixy, nx, ny, dx, dy,TileSize);
@@ -200,6 +205,7 @@ int main(){
         // Feeding phi, psix, psiy and psixy values in their respective files
 /*        if((t+1) % printstep == 0)
         {
+	    tempt = 0.0; 
             cudaEventRecord(startEvent,0);
             cudaMemcpy(mphi, masterdphi, gridmemory, cudaMemcpyDeviceToHost);       // Writing back to host memory
             cudaMemcpy(mpsix, masterdpsix, gridmemory, cudaMemcpyDeviceToHost);       // Writing back to host memory
@@ -231,7 +237,7 @@ int main(){
     float duration = chrono::duration_cast<chrono::nanoseconds>(tend-tbegin).count();
     duration = duration * pow(10.0,-6);
     cout << "Time taken for calculation of advection points = " << t_calcpts << '\n';
-    cout << "Time taken for finding locatio of advection points in the grid = " << t_findpts << '\n';
+    cout << "Time taken for finding location of advection points in the grid = " << t_findpts << '\n';
     cout << "Time taken for hermite Update = " << t_update << '\n';
     cout << "Time taken for copying the matrix = " << t_copy << '\n';
     cout << "Time taken for calculation of mixed derivatives = " << t_mixed << '\n';
