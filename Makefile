@@ -20,11 +20,15 @@ debug : LDFLAGS := -fsanitize=address
 debug : ARCH :=
 debug : $(EXEC)
 
-all : gals_advection galsMPIOMP galsMPI gals_advection_cuda
+all : gals_advection galsOMP galsMPIOMP galsMPI gals_advection_cuda
 
 gals_advection: GALS_Advection.cpp
 	@ echo Compiling $<...
 	$(CXX) GALS_Advection.cpp -o GALS_Advection_Serial $(WFLAGS) $(OPT) $(CFLAGS) $(CXXXSTD) #-pg -fprofile-arcs -ftest-coverage
+
+galsOMP: GALS_Advection_OpenMP.cpp
+	@ echo Compiling $<...
+	module load openmpi/2.1.1;mpicxx $(CXXXSTD) GALS_Advection_OpenMP.cpp -o GALS_Advection_OMP $(WFLAGS) $(OPT) $(LDFLAGS) $(CFLAGS) $(CXXSTD) #-pg -fprofile-arcs -ftest-coverage
 
 galsMPIOMP: GALS_Advection_MPI_OpenMP.cpp
 	@ echo Compiling $<...
