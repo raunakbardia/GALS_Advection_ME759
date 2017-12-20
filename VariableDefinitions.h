@@ -1,3 +1,8 @@
+/*
+ * Data types defined for use in the serial and MPI codes
+ * These data types could not be used in the CUDA code.
+ */
+
 namespace galsfunctions
 {
     typedef std::tuple<double,double> psinode;

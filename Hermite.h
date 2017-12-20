@@ -1,10 +1,7 @@
-//
-//  Hermite.h
-//
-//
-//  Created by Raunak Bardia on 10/6/14.
-//
-//
+/*
+This file includes all the functions required to calculate the hermite interpolating polynomial and its gradients,
+which is the essence of the high accuracy of the current advection scheme.
+*/
 
 #ifndef _Hermite_h
 #define _Hermite_h

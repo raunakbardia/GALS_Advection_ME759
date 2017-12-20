@@ -1,3 +1,8 @@
+/*
+ * This file defines the constants required to calculate
+ * the level set field and the velocity field
+ */
+
 #ifndef _Constants_h
 #define _Constants_h
 

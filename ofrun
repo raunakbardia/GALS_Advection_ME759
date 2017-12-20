@@ -8,9 +8,8 @@
 #SBATCH -o job_out
 ###SBATCH --gres=gpu:1 # not needed for OpenMP
 
-##./GALS_Advection 
-
-mpiexec -np 2 ./GALS_Advection_MPI_OMP >& out.log 
+mpiexec -np 2 ./GALS_Advection_MPI_OMP 4
 
 mv job_out ggg.out
 mv job_err ggg.err
+

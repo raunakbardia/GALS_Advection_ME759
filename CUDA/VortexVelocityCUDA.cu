@@ -1,10 +1,9 @@
-//
-//  VortexVelocityCUDA.cu
-//
-//
-//  Created by Raunak Bardia on 12/10/17.
-//
-//
+/*
+This file defines the functions required to calculate the analytical velocity at
+any point in space and time for the given 2D domain
+This file is for a Vortex type velocity field. For any other field, this file needs
+to be modified completely.
+*/
 
 #ifndef _VortexVelocityCUDA_cu
 #define _VortexVelocityCUDA_cu

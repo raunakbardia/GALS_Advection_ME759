@@ -1,10 +1,7 @@
-//
-//  AdvectionPointCalcsCUDA.h
-//
-//
-//  Created by Raunak Bardia on 12/08/17.
-//
-//
+/*
+This file is an implementation of all the functions that work on a single node
+in the 2D grid and update the level set.
+*/
 
 #include "HermiteCUDA.cu"
 #include "TimeSteppingMethodsCUDA.cu"

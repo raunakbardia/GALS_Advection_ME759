@@ -1,11 +1,8 @@
+/*
+This file is an implementation of all the functions that work on a single node
+in the 2D grid and update the level set.
+*/
 
-//
-//  AdvectionPointCalcs.h
-//
-//
-//  Created by Raunak Bardia on 12/08/17.
-//
-//
 #ifndef _AdvectionPointCalcs_h
 #define _AdvectionPointCalcs_h
 
@@ -20,7 +17,6 @@ namespace galsfunctions
         double c2 = (1/6.0);
         double c3 = (2/3.0);    //RK-3 constants
 
-    //  unsigned int nx = x.size();
         unsigned int ny = y.size();
 	# pragma omp parallel
 	{

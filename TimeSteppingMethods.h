@@ -1,10 +1,6 @@
-//
-//  TimeSteppingMethods.h
-//
-//
-//  Created by Raunak Bardia on 12/08/17.
-//
-//
+/*
+All the time integration methods required for the numerical algorithm are implemented in this header file.
+*/
 
 namespace galsfunctions
 {

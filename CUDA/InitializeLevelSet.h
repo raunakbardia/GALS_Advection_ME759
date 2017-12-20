@@ -1,10 +1,7 @@
-//
-//  InitializeLevelSet.h
-//
-//
-//  Created by Raunak Bardia on 12/10/17.
-//
-//
+/*
+ * This file is called by the Allocation.h to calculate the level set
+ * and its gradient values at specific points on the grid for initialization.
+ */
 
 const double pi = M_PI;
 const double xo = .5;

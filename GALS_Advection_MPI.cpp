@@ -1,12 +1,6 @@
+//  GALS - Before compiling the program, update the section of this program that is in the beginning of main and update all the initializer files
 //
-//  GALS - Before compiling the program, update the section of this program that is in the beginning of main and update all the functions in Initializer.h
-//
-//  Created by Raunak Bardia on 10/22/14.
-//
-// DISCLAIMER:
-// Use the indexes carefully
-// First index of array represents movement along y-direction because it represents rows
-// Second index of array represents movement along x-direction because it represents columns
+//  Created by Raunak Bardia, Chia-Wei Kuo, and Arpit Agarwal on December 20, 2017.
 //
 // Implementing GALS for a given initial level set function
 // in a specified velocity field for a grid of cells
@@ -17,7 +11,8 @@
 //
 // All required data is stored in separate 2D matrices of phi, psix, psiy and psixy
 // Boundary Condition grad(velocity).n > 0
-//
+
+/* * * * * * * * * * * * * *  MPI IMPLEMENTATION * * * * * * * * * * * * * * */
 
 // THIS IMPLEMENTATION WON'T WORK IF THE GRID IS SMALLER THAN (2 X 2)
 #include <iostream>

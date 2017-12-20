@@ -1,10 +1,8 @@
-//
-//  Allocation.h
-//
-//
-//  Created by Raunak Bardia on 12/01/17.
-//
-//
+/*
+ * This file contains all the functions that are used to initialize the level set, it's gradients and the velocity field on the 2D grid.
+ * The last function is used to print all the details correctly in a file for all grid nodes. It generates 6 different txt files that are 
+ * read usingthe Readfiles.m for visualization of the interface and levelset.
+ */
 
 #ifndef _Allocation_h
 #define _Allocation_h

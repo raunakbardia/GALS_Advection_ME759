@@ -1,10 +1,6 @@
-//
-//  TimeSteppingMethods.h
-//
-//
-//  Created by Raunak Bardia on 12/08/17.
-//
-//
+/*
+All the time integration methods required for the numerical algorithm are implemented in this header file.
+*/
 
 __device__ void Heuns_internal(double xnode, double ynode, double xadv, double yadv, double rootpsix, double rootpsiy,
         unsigned int t, double dt, double T_period, double *temppsix, double *temppsiy, unsigned long indexToWrite)

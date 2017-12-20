@@ -1,12 +1,6 @@
+//  GALS - Before compiling the program, update the section of this program that is in the beginning of main and update all the initializer files
 //
-//  GALS - Before compiling the program, update the section of this program that is in the beginning of main and update all the functions in Initializer.h
-//
-//  Created by Raunak Bardia on 10/22/14.
-//
-// DISCLAIMER:
-// Use the indexes carefully
-// First index of array represents movement along y-direction because it represents rows
-// Second index of array represents movement along x-direction because it represents columns
+//  Created by Raunak Bardia, Chia-Wei Kuo, and Arpit Agarwal on December 20, 2017.
 //
 // Implementing GALS for a given initial level set function
 // in a specified velocity field for a grid of cells
@@ -17,8 +11,8 @@
 //
 // All required data is stored in separate 2D matrices of phi, psix, psiy and psixy
 // Boundary Condition grad(velocity).n > 0
-//
 
+/* * * * * * * * * * * * * *  SERIAL IMPLEMENTATION * * * * * * * * * * * * * * */
 // THIS IMPLEMENTATION WON'T WORK IF THE GRID IS SMALLER THAN (2 X 2)
 #include <iostream>
 #include <iomanip>
@@ -50,19 +44,19 @@ int main(){
     /* UPDATE ALL THE FOLLOWING VALUES */
     double xlim1 = 0.0;                       //Lower limit on x-axis
     double xlim2 = 1.0;                      //Upper limit on x-axis
-    unsigned int nx = 64 + 1;                         //Number of nodes in x-direction INCLUDING THE EXTREME VALUES
+    unsigned int nx = 128;                         //Number of nodes in x-direction INCLUDING THE EXTREME VALUES
     
     double ylim1 = 0.0;                       //Lower limit on y-axis
     double ylim2 = 1.0;                     //Upper limit on y-axis
-    unsigned int ny = 64 + 1;                        //Number of nodes INCLUDING THE EXTREME VALUES
+    unsigned int ny = 128;                        //Number of nodes INCLUDING THE EXTREME VALUES
     
-    double dt = 0.5 * 1.0/512.0;                     //Length of time step
-    double Tfinal = 8.0;                    //Total time period for the simulation
-    unsigned int option = 2;                         //Option - if you need animation initialize at 1 else initialize at 2
-    unsigned int printstep = 256;                      //How frequently do you want to store the images (every nth time step)
+    double dt = 0.5 * 1.0/128.0;                     //Length of time step
+    double Tfinal = 1.0;                    //Total time period for the simulation
+    unsigned int option = 1;                         //Option - if you need animation initialize at 1 else initialize at 2
+    unsigned int printstep = 16;                      //How frequently do you want to store the images (every nth time step)
     char psischeme[] = "SuperConsistent";   //'SuperConsistent' or 'Heuns'
     char backtrace_scheme[] = "RK3" ;      //'Euler' or 'RK3'
-    double T_period = 8.0;                  //Period of the velocity field
+    double T_period = 1.0;                  //Period of the velocity field
     
     //MAKE SURE THAT YOU HAVE ENOUGH MEMORY SPACE IF YOU ARE STORING A LOT OF TIME STEP VALUES BECAUSE IT STORES ACROSS GRID POINTS FOR EACH PRINTSTEP
     
@@ -85,7 +79,7 @@ int main(){
     
     
     // Removing existing files with these names if any
-/*    remove("phi.txt");
+    remove("phi.txt");
     remove("psix.txt");
     remove("psiy.txt");
     remove("psixy.txt");
@@ -97,8 +91,7 @@ int main(){
     details.open("details.txt", ios::out | ios::app);
     details<< nx << "," << ny << "," << std::fixed << std::setprecision(10) << dx << "," << dy << "," << xlim1 << "," << xlim2 << "," << ylim1 << "," << ylim2 << "," << n << "," << dt << "," << printstep;
     details.close();
-    
-  */  
+  
     /*
      * Let the following represent one cell
      *
@@ -168,12 +161,12 @@ int main(){
         
         //---------------------------------------------------------------------------------------------------------
         // Feeding phi, psix, psiy and psixy values in their respective files
-/*        if((t+1) % printstep == 0)
+        if((t+1) % printstep == 0)
             fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,(t+1)*dt,T_period);
         
         cout<< t+1;
         cout<< " Time Step Completed" <<'\n';
-*/        
+        
         //---------------------------------------------------------------------------------------------------------
         xadv.clear();
         yadv.clear();

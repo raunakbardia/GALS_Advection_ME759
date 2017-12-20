@@ -1,3 +1,7 @@
+/*
+ * Required for MPI implementation
+ */
+
 #ifndef _DEFINEMPI_H
 #define _DEFINEMPI_H
 

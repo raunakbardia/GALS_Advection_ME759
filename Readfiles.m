@@ -4,7 +4,11 @@ clear;
 clc;
 
 %% Reading the details from the files generated from C++ code
-details = fopen('details.txt','r');
+path = pwd;
+codetype = '/';
+testtype = '';
+detailsfile = strcat(path,codetype,testtype,'details.txt');
+details = fopen(detailsfile,'r');
 parameters = textscan(details, '%d,%d,%f,%f,%f,%f,%f,%f,%d,%f,%d');
 nx = cell2mat(parameters(1));           % Number of nodes in x-dir
 ny = cell2mat(parameters(2));           % Number of nodes in y-dir
@@ -32,12 +36,18 @@ masterpsixy = double(zeros(ny, nx, n));
 u = double(zeros(ny, nx, n));
 v = double(zeros(ny, nx, n));
 
-phi = fopen('phi.txt','r');
-psix = fopen('psix.txt','r');
-psiy = fopen('psiy.txt','r');
-psixy = fopen('psixy.txt','r');
-uu = fopen('Velocity_x.txt','r');
-vv = fopen('Velocity_y.txt','r');
+phifile = strcat(path,codetype,testtype,'phi.txt');
+phi = fopen(phifile,'r');
+psixfile = strcat(path,codetype,testtype,'psix.txt');
+psix = fopen(psixfile,'r');
+psiyfile = strcat(path,codetype,testtype,'psiy.txt');
+psiy = fopen(psiyfile,'r');
+psixyfile = strcat(path,codetype,testtype,'psixy.txt');
+psixy = fopen(psixyfile,'r');
+ufile = strcat(path,codetype,testtype,'Velocity_x.txt');
+uu = fopen(ufile,'r');
+vfile = strcat(path,codetype,testtype,'Velocity_y.txt');
+vv = fopen(vfile,'r');
 
 for i = 1:n
     for j = 1:ny
@@ -57,8 +67,6 @@ for i = 1:n
 end
 
 %% Plotting the stored data
-tagMain = 'Rayleigh/';
-tagSize = 'n16x16/';
 pause on;
 for i = 1:n
     
@@ -67,7 +75,7 @@ for i = 1:n
         axes1 = axes('Parent',figure1,'FontSize',24);
     end
     
-    quiver(xx(:,2:end),yy(:,2:end),u(:,2:end,1),v(:,2:end,1),'Parent',axes1);
+    quiver(xx(:,2:end),yy(:,2:end),u(:,2:end,i),v(:,2:end,i),'Parent',axes1);
     axis([xlim1 xlim2 ylim1 ylim2]);
     hold on
     
@@ -85,16 +93,19 @@ for i = 1:n
     axis square
     pause(0.1);
     hold off
-    
-    %     if(rem(i-1,8)==0)
-    %         fname = sprintf([tagMain  tagSize  'T2_%d'],(i-1));
-    %         print('-depsc2','-r600',fname);
-    %     end
+%     if(rem(i-1,4)==0)
+%         fname = sprintf([path  codetype testtype 'T8_%d'],(i-1));
+%         fig = figure(1);
+%         fig.PaperPositionMode = 'auto';
+%         fig_pos = fig.PaperPosition;
+%         fig.PaperSize = [fig_pos(3) fig_pos(4)];
+%         print('-dpng','-r0',fname);
+%     end
 end
-% error = abs(masterphi(:,:,end)) - abs(masterphi(:,:,1);
+error = abs(masterphi(:,:,end)) - abs(masterphi(:,:,1));
 % surf(x,y,error)
 % load('Convergence.mat')
-% e(4) = max(max(abs(abs(masterphi(:,:,end)) - abs(masterphi(:,:,1)))));
-% edx(4) = dx;
+e = max(max(abs(abs(masterphi(:,:,end)) - abs(masterphi(:,:,1)))))
+edx = dx
 % save('Convergence.mat','e','edx');
 % close all;
