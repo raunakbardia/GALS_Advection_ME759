@@ -1,7 +1,7 @@
-%% Read all the files
+% Read all the files
 close all;
 clear;
-clc;
+%clc;
 
 %% Reading the details from the files generated from C++ code
 path = pwd;
@@ -69,20 +69,19 @@ end
 %% Plotting the stored data
 pause on;
 for i = 1:n
-    
+
     if(i == 1)
         figure1 = figure;
         axes1 = axes('Parent',figure1,'FontSize',24);
     end
-    
     quiver(xx(:,2:end),yy(:,2:end),u(:,2:end,i),v(:,2:end,i),'Parent',axes1);
     axis([xlim1 xlim2 ylim1 ylim2]);
     hold on
-    
+
     contour(x, y, masterphi(:, :, 1),[0 0]);
-    
+
     %     surfc(x, y, masterphi(:, :, i));
-    
+
     [c,h] = contour(x, y, masterphi(:, :, i),[0 0]);
     set(h, 'LineWidth', 2.0, 'LineColor', 'k');
     xlabel('X','FontSize',24);
