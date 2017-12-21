@@ -89,14 +89,14 @@ int N = strtol(argv[1], &sal, 10);
 
 
     // Removing existing files with these names if any
-//    remove("phi.txt");
-//    remove("psix.txt");
-//    remove("psiy.txt");
-//    remove("psixy.txt");
-//    remove("details.txt");
-//    remove("Velocity_x.txt");
-//    remove("Velocity_y.txt");
-//   fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,0.0,T_period);
+    remove("phi.txt");
+    remove("psix.txt");
+    remove("psiy.txt");
+    remove("psixy.txt");
+    remove("details.txt");
+    remove("Velocity_x.txt");
+    remove("Velocity_y.txt");
+    fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,0.0,T_period);
 
     /*
      * Let the following represent one cell
@@ -156,11 +156,11 @@ int N = strtol(argv[1], &sal, 10);
 
         //---------------------------------------------------------------------------------------------------------
         // Feeding phi, psix, psiy and psixy values in their respective files
-//        if((t+1) % printstep == 0)
-//            fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,(t+1)*dt,T_period);
+        if((t+1) % printstep == 0)
+            fileprint(mphi,mpsix,mpsiy,mpsixy,nx,ny,x,y,(t+1)*dt,T_period);
 
-//        cout<< t+1;
-//        cout<< " Time Step Completed" <<'\n';
+        cout<< t+1;
+        cout<< " Time Step Completed" <<'\n';
 
         //---------------------------------------------------------------------------------------------------------
         xadv.clear();
